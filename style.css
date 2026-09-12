@@ -1,31 +1,32 @@
 /* ==========================================================================
-   全域變數與重設樣式
+   全域變數與重設樣式 (Global Tokens & Resets)
+   遵循 .agents/rules/development-guidelines.md 規範
    ========================================================================== */
 :root {
-  --font-family-base: "Microsoft JhengHei", "PingFang TC", "Helvetica Neue", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-  --bg-page: #f7f8fa;
+  --font-family-base: "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --bg-page: #f6f7f9;
   --bg-card: #ffffff;
-  --border-color: #eaecef;
-  --border-subtle: #f0f2f5;
-  
+  --border-color: #e5e7eb;
+  --border-subtle: #f3f4f6;
+
   --text-primary: #1f2937;
   --text-secondary: #4b5563;
-  --text-muted: #8c96a5;
+  --text-muted: #9ca3af;
   --text-link: #2563eb;
-  
-  --brand-primary: #3b82f6;
-  --brand-primary-hover: #2563eb;
+
+  --brand-primary: #2563eb;
+  --brand-primary-hover: #1d4ed8;
   --like-color: #ef4444;
   --bookmark-color: #f59e0b;
-  
+
   --radius-card: 16px;
   --radius-sm: 8px;
   --radius-full: 9999px;
-  
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
-  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08);
+
+  --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.08);
   --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.15);
-  
+
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-bounce: 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -46,13 +47,13 @@ body {
 }
 
 /* ==========================================================================
-   頁面頂部導航列 (App Header)
+   頂部導航列 (App Header)
    ========================================================================== */
 .app-header {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
@@ -82,7 +83,7 @@ body {
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .brand-subtitle {
@@ -118,7 +119,7 @@ body {
 .btn-primary:hover {
   background-color: var(--brand-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
 .btn-secondary {
@@ -161,6 +162,40 @@ body {
 }
 
 /* ==========================================================================
+   空狀態提示 (Empty State)
+   ========================================================================== */
+.empty-state {
+  background-color: var(--bg-card);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-color);
+  padding: 3.5rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--shadow-card);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.empty-desc {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  max-width: 360px;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
    社群圖文心得卡片 (Post Card)
    ========================================================================== */
 .post-card {
@@ -188,7 +223,7 @@ body {
   }
 }
 
-/* 1. 卡片頭部 (Header) */
+/* 卡片頂部資訊列 */
 .post-header {
   display: flex;
   align-items: center;
@@ -214,6 +249,7 @@ body {
   border: 2px solid #ffffff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   display: block;
+  background-color: #f3f4f6;
 }
 
 .online-badge {
@@ -236,7 +272,7 @@ body {
 .name-row {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
 .author-name {
@@ -245,17 +281,13 @@ body {
   color: var(--text-primary);
 }
 
-.author-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 15px;
-  height: 15px;
-  background-color: var(--brand-primary);
-  color: #ffffff;
-  font-size: 0.65rem;
-  font-weight: 900;
-  border-radius: 50%;
+.topic-tag-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+  background-color: #eff6ff;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
 }
 
 .author-handle {
@@ -283,7 +315,7 @@ body {
   vertical-align: middle;
 }
 
-/* 2. 卡片媒體區 (Media Showcase) */
+/* 媒體區展示與雙擊愛心 */
 .post-media-container {
   position: relative;
   width: 100%;
@@ -291,12 +323,13 @@ body {
   cursor: pointer;
   user-select: none;
   overflow: hidden;
+  min-height: 240px;
 }
 
 .post-image {
   width: 100%;
   max-height: 460px;
-  min-height: 280px;
+  min-height: 260px;
   object-fit: cover;
   display: block;
   transition: transform 0.4s ease;
@@ -310,7 +343,7 @@ body {
   position: absolute;
   top: 1rem;
   left: 1rem;
-  background: rgba(17, 24, 39, 0.65);
+  background: rgba(17, 24, 39, 0.7);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   color: #ffffff;
@@ -321,7 +354,6 @@ body {
   pointer-events: none;
 }
 
-/* 雙擊圖片爆發大愛心效果 */
 .floating-heart {
   position: absolute;
   top: 50%;
@@ -330,7 +362,7 @@ body {
   opacity: 0;
   pointer-events: none;
   transition: all var(--transition-bounce);
-  filter: drop-shadow(0 4px 12px rgba(255, 45, 85, 0.4));
+  filter: drop-shadow(0 4px 12px rgba(239, 68, 68, 0.4));
 }
 
 .floating-heart.active {
@@ -356,7 +388,7 @@ body {
   }
 }
 
-/* 3. 卡片互動列 (Actions Bar) */
+/* 互動工具列 */
 .post-actions {
   display: flex;
   align-items: center;
@@ -391,7 +423,6 @@ body {
   color: var(--text-primary);
 }
 
-/* 愛心按鈕與已按讚樣式 */
 .like-btn.liked {
   color: var(--like-color);
 }
@@ -408,7 +439,6 @@ body {
   100% { transform: scale(1); }
 }
 
-/* 書籤收藏按鈕樣式 */
 .bookmark-btn.saved {
   color: var(--bookmark-color);
 }
@@ -419,7 +449,7 @@ body {
   animation: heartPulse var(--transition-bounce);
 }
 
-/* 4. 卡片內容區 (Content & Tags) */
+/* 卡片內文區 */
 .post-content {
   padding: 0.25rem 1.25rem 1rem;
 }
@@ -458,10 +488,9 @@ body {
 
 .tag:hover {
   background-color: #dbeafe;
-  color: var(--brand-primary-hover);
 }
 
-/* 5. 留言列表 (Comments Section) */
+/* 留言列表區 */
 .comments-section {
   margin-top: 1rem;
   padding-top: 0.75rem;
@@ -502,7 +531,7 @@ body {
   word-break: break-word;
 }
 
-/* 6. 底部留言輸入框 (Footer Input) */
+/* 卡片底部留言輸入框 */
 .post-footer {
   padding: 0.75rem 1.25rem 1.1rem;
   border-top: 1px solid var(--border-subtle);
@@ -522,7 +551,7 @@ body {
 
 .comment-input-box:focus-within {
   border-color: var(--brand-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
 .comment-input {
@@ -557,7 +586,7 @@ body {
 }
 
 /* ==========================================================================
-   彈出視窗：新增心得 (Modal Overlay & Dialog)
+   彈出視窗與 UX 流程表單 (Modal & Form Styles)
    ========================================================================== */
 .modal-overlay {
   position: fixed;
@@ -583,7 +612,7 @@ body {
 .modal-content {
   background-color: #ffffff;
   width: 100%;
-  max-width: 520px;
+  max-width: 540px;
   max-height: 90vh;
   overflow-y: auto;
   border-radius: var(--radius-card);
@@ -614,7 +643,7 @@ body {
   padding: 1.25rem 1.5rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: 1.15rem;
 }
 
 .form-group {
@@ -623,7 +652,13 @@ body {
   gap: 0.45rem;
 }
 
-.form-group label {
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.form-label {
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -644,11 +679,124 @@ body {
 .form-group input:focus,
 .form-group textarea:focus {
   border-color: var(--brand-primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-.form-input-sub {
-  margin-top: 0.45rem;
+/* 主題三選一格線卡片 (UX 規範) */
+.topic-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+.topic-card {
+  position: relative;
+  cursor: pointer;
+}
+
+.topic-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.topic-box {
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  background-color: #fafbfc;
+  transition: all var(--transition-fast);
+  height: 100%;
+}
+
+.topic-box strong {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.topic-box small {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.topic-icon {
+  font-size: 1.35rem;
+  margin-bottom: 0.1rem;
+}
+
+.topic-card:has(input[type="radio"]:checked) .topic-box {
+  border-color: var(--brand-primary);
+  background-color: #eff6ff;
+  box-shadow: 0 0 0 1px var(--brand-primary);
+}
+
+/* 小短文排版潤飾按鈕 */
+.content-assistant-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.2rem;
+}
+
+.btn-text-action {
+  background: none;
+  border: none;
+  color: var(--brand-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.2rem 0;
+  transition: opacity var(--transition-fast);
+}
+
+.btn-text-action:hover {
+  text-decoration: underline;
+}
+
+.text-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* 照片分頁按鈕 */
+.photo-method-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.tab-btn.active {
+  background-color: #eff6ff;
+  color: var(--brand-primary);
+}
+
+.photo-tab-panel {
+  display: none;
+}
+
+.photo-tab-panel.active {
+  display: block;
 }
 
 .preset-images-grid {
@@ -681,8 +829,87 @@ body {
 
 .preset-option:has(input[type="radio"]:checked) {
   border-color: var(--brand-primary);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
   transform: scale(0.96);
+}
+
+.form-input-sub {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+/* 自行上傳照片拖曳區 */
+.upload-dropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  background-color: #fafbfc;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.upload-dropzone:hover {
+  border-color: var(--brand-primary);
+  background-color: #eff6ff;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.dropzone-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.upload-icon {
+  font-size: 2rem;
+  margin-bottom: 0.2rem;
+}
+
+.dropzone-prompt p {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dropzone-prompt small {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.upload-preview-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.upload-preview-img {
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+}
+
+.btn-remove-photo {
+  background: none;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-remove-photo:hover {
+  background-color: #fef2f2;
 }
 
 .modal-actions {
@@ -709,7 +936,7 @@ body {
 }
 
 .toast-item {
-  background-color: rgba(17, 24, 39, 0.9);
+  background-color: rgba(17, 24, 39, 0.92);
   color: #ffffff;
   padding: 0.65rem 1.25rem;
   border-radius: var(--radius-full);
@@ -778,7 +1005,7 @@ body {
 
   .post-media-container .post-image {
     max-height: 380px;
-    min-height: 240px;
+    min-height: 220px;
   }
 
   .post-actions {
@@ -791,6 +1018,14 @@ body {
 
   .post-footer {
     padding: 0.65rem 1rem 0.85rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .topic-options-grid {
+    grid-template-columns: 1fr;
   }
 
   .preset-images-grid {
