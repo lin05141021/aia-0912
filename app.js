@@ -158,15 +158,19 @@ function renderFeed() {
  * @param {Object} post 
  * @returns {HTMLElement}
  */
-function createPostCardElement(post) {
-  const article = document.createElement('article');
-  article.className = 'post-card';
+  // 主題樣式識別類別 (對應 PANTONE 色系)
+  let topicClass = 'topic-diary';
+  if (post.topic === '專業知識分享') topicClass = 'topic-knowledge';
+  else if (post.topic === '資訊分享') topicClass = 'topic-travel';
+
+  article.className = `post-card ig-post-card ${topicClass}-card`;
   article.setAttribute('data-post-id', post.id);
 
   const tagsHTML = (post.tags || [])
     .map(tag => `<a href="javascript:void(0)" class="tag">${escapeHTML(tag)}</a>`)
     .join('\n');
 
+  const commentsCount = (post.comments || []).length;
   const commentsHTML = (post.comments || [])
     .map(c => `
       <div class="comment-item">
@@ -176,24 +180,20 @@ function createPostCardElement(post) {
     `).join('\n');
 
   article.innerHTML = `
-    <!-- 卡片頭部 -->
-    <header class="post-header">
+    <!-- 1. Instagram 卡片標頭列 (Header) -->
+    <header class="post-header ig-header">
       <div class="author-info">
-        <div class="avatar-wrapper">
-          <img src="${escapeHTML(post.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80')}" alt="${escapeHTML(post.author)} 的頭像" class="avatar" loading="lazy">
-          <span class="online-badge"></span>
+        <div class="avatar-wrapper ig-avatar-wrapper">
+          <img src="${escapeHTML(post.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80')}" alt="${escapeHTML(post.author)} 的頭像" class="avatar ig-avatar" loading="lazy">
         </div>
         <div class="author-meta">
           <div class="name-row">
             <strong class="author-name">${escapeHTML(post.author)}</strong>
-            <span class="topic-tag-badge">${escapeHTML(post.topic || '心得雜記')}</span>
-            <span class="author-handle">${escapeHTML(post.handle || '@user')}</span>
+            <span class="topic-tag-badge ${topicClass}">${escapeHTML(post.topic || '心得雜記')}</span>
           </div>
           <div class="sub-meta">
-            <time class="post-time">${escapeHTML(post.timeText || '剛剛')}</time>
-            <span class="dot-separator">•</span>
             <span class="location-tag">
-              <svg class="icon-inline" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="icon-inline" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                 <circle cx="12" cy="10" r="3"></circle>
               </svg>
@@ -211,34 +211,32 @@ function createPostCardElement(post) {
       </button>
     </header>
 
-    <!-- 卡片媒體區與雙擊大愛心 -->
-    <div class="post-media-container" data-action="double-tap-like">
-      <img src="${escapeHTML(post.image)}" alt="${escapeHTML(post.topic || '心得照片')}" class="post-image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1000&q=80'">
+    <!-- 2. Instagram 主視覺照片 (1:1 正方形黃金比例 & 雙擊大愛心) -->
+    <div class="post-media-container ig-media-container" data-action="double-tap-like">
+      <img src="${escapeHTML(post.image)}" alt="${escapeHTML(post.topic || '心得照片')}" class="post-image ig-post-image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1000&q=80'">
       <span class="media-badge">${escapeHTML(post.mediaBadge || '✨ 心得紀錄')}</span>
       <div class="floating-heart" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="72" height="72" fill="#ef4444">
+        <svg viewBox="0 0 24 24" width="76" height="76" fill="#ed4956">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
       </div>
     </div>
 
-    <!-- 卡片互動列 -->
-    <div class="post-actions">
+    <!-- 3. Instagram 互動動作列 (Like, Comment, Share, Save) -->
+    <div class="post-actions ig-actions">
       <div class="actions-left">
         <button class="action-btn like-btn ${post.isLiked ? 'liked' : ''}" aria-label="按讚" data-action="like" data-liked="${post.isLiked ? 'true' : 'false'}">
-          <svg class="heart-icon" viewBox="0 0 24 24" width="24" height="24" fill="${post.isLiked ? '#ef4444' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="heart-icon" viewBox="0 0 24 24" width="24" height="24" fill="${post.isLiked ? '#ed4956' : 'none'}" stroke="${post.isLiked ? '#ed4956' : 'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
           </svg>
-          <span class="like-counter">${post.likes || 0}</span>
         </button>
         <button class="action-btn comment-btn" aria-label="留言" data-action="focus-comment">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
           </svg>
-          <span class="comment-counter">${(post.comments || []).length}</span>
         </button>
         <button class="action-btn share-btn" aria-label="分享這則心得" data-action="share">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"></line>
             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
           </svg>
@@ -246,32 +244,44 @@ function createPostCardElement(post) {
       </div>
       <div class="actions-right">
         <button class="action-btn bookmark-btn ${post.isSaved ? 'saved' : ''}" aria-label="收藏心得" data-action="bookmark" data-saved="${post.isSaved ? 'true' : 'false'}">
-          <svg class="bookmark-icon" viewBox="0 0 24 24" width="22" height="22" fill="${post.isSaved ? '#f59e0b' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="bookmark-icon" viewBox="0 0 24 24" width="24" height="24" fill="${post.isSaved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
           </svg>
         </button>
       </div>
     </div>
 
-    <!-- 卡片內容區 -->
-    <div class="post-content">
-      <p class="post-text">
-        <span class="post-author-tag">${escapeHTML(post.handle || '@user')}</span>
-        ${escapeHTML(post.content)}
-      </p>
+    <!-- 4. Instagram 按讚統計列 -->
+    <div class="ig-likes-section">
+      <strong class="likes-counter-text">${post.likes || 0} 個讚</strong>
+    </div>
+
+    <!-- 5. Instagram 正文首行與內文排版 -->
+    <div class="post-content ig-post-content">
+      <div class="ig-caption-row">
+        <strong class="author-name-inline">${escapeHTML(post.handle || post.author)}</strong>
+        <span class="caption-body">${escapeHTML(post.content)}</span>
+      </div>
       <div class="post-tags">
         ${tagsHTML}
       </div>
-      <div class="comments-section">
-        ${commentsHTML}
+
+      <!-- 6. 留言展示與發布時間戳記 -->
+      <div class="comments-section ig-comments-section">
+        ${commentsCount > 0 ? `<div class="ig-view-comments" data-action="focus-comment">查看全部 ${commentsCount} 則留言</div>` : ''}
+        <div class="comments-list">
+          ${commentsHTML}
+        </div>
+        <time class="ig-timestamp">${escapeHTML(post.timeText || '剛剛')}</time>
       </div>
     </div>
 
-    <!-- 底部留言輸入框 -->
-    <footer class="post-footer">
-      <form class="comment-input-box" data-form="comment">
-        <input type="text" class="comment-input" placeholder="寫下你的溫暖回應..." required aria-label="輸入留言">
-        <button type="submit" class="btn-send-comment" aria-label="送出留言">發布</button>
+    <!-- 7. Instagram 底部快速留言列 -->
+    <footer class="post-footer ig-post-footer">
+      <form class="ig-comment-form" data-form="comment">
+        <button type="button" class="ig-emoji-btn" aria-label="加入表情符號" data-action="insert-emoji">😊</button>
+        <input type="text" class="comment-input ig-comment-input" placeholder="新增留言..." required aria-label="輸入留言">
+        <button type="submit" class="btn-send-comment ig-btn-post" aria-label="發布留言">發佈</button>
       </form>
     </footer>
   `;
@@ -318,6 +328,18 @@ function initPostInteractions() {
       return;
     }
 
+    // 表情符號捷徑點選
+    const emojiBtn = e.target.closest('[data-action="insert-emoji"]');
+    if (emojiBtn) {
+      const card = emojiBtn.closest('.post-card');
+      const input = card ? card.querySelector('.comment-input') : null;
+      if (input) {
+        input.value = (input.value ? input.value + ' ' : '') + '❤️';
+        input.focus();
+      }
+      return;
+    }
+
     // 更多選項
     const moreBtn = e.target.closest('[data-action="more"]');
     if (moreBtn) {
@@ -360,20 +382,34 @@ function handleLikeToggle(btn) {
   if (!card) return;
   const postId = card.getAttribute('data-post-id');
   const counter = btn.querySelector('.like-counter');
-  let count = parseInt(counter.textContent, 10) || 0;
-  const isLiked = btn.getAttribute('data-liked') === 'true';
+  const likesText = card.querySelector('.likes-counter-text');
 
+  let count = 0;
+  if (likesText) {
+    count = parseInt(likesText.textContent, 10) || 0;
+  } else if (counter) {
+    count = parseInt(counter.textContent, 10) || 0;
+  }
+
+  const isLiked = btn.getAttribute('data-liked') === 'true';
   const newLiked = !isLiked;
   const newCount = newLiked ? count + 1 : Math.max(0, count - 1);
 
   btn.setAttribute('data-liked', newLiked ? 'true' : 'false');
   btn.classList.toggle('liked', newLiked);
-  counter.textContent = newCount;
+
+  if (likesText) {
+    likesText.textContent = `${newCount} 個讚`;
+  }
+  if (counter) {
+    counter.textContent = newCount;
+  }
 
   // 更新 SVG 填色
   const icon = btn.querySelector('.heart-icon');
   if (icon) {
-    icon.setAttribute('fill', newLiked ? '#ef4444' : 'none');
+    icon.setAttribute('fill', newLiked ? '#ed4956' : 'none');
+    icon.setAttribute('stroke', newLiked ? '#ed4956' : 'currentColor');
   }
 
   // 同步至 localStorage
@@ -415,7 +451,7 @@ function handleBookmarkToggle(btn) {
 
   const icon = btn.querySelector('.bookmark-icon');
   if (icon) {
-    icon.setAttribute('fill', newSaved ? '#f59e0b' : 'none');
+    icon.setAttribute('fill', newSaved ? 'currentColor' : 'none');
   }
 
   showToast(newSaved ? '已加入個人收藏' : '已自收藏清單移除');
@@ -453,8 +489,9 @@ function handleCommentSubmit(form) {
   const card = form.closest('.post-card');
   if (!card) return;
   const postId = card.getAttribute('data-post-id');
-  const commentsSection = card.querySelector('.comments-section');
+  const targetList = card.querySelector('.comments-list') || card.querySelector('.comments-section');
   const commentCounter = card.querySelector('.comment-counter');
+  const viewComments = card.querySelector('.ig-view-comments');
 
   const newComment = { user: '我', text: text };
 
@@ -465,12 +502,17 @@ function handleCommentSubmit(form) {
     <strong class="comment-user">我</strong>
     <span class="comment-text">${escapeHTML(text)}</span>
   `;
-  commentsSection.appendChild(item);
+  if (targetList) {
+    targetList.appendChild(item);
+  }
 
   // 計數器更新
+  const totalComments = card.querySelectorAll('.comment-item').length;
   if (commentCounter) {
-    const count = parseInt(commentCounter.textContent, 10) || 0;
-    commentCounter.textContent = count + 1;
+    commentCounter.textContent = totalComments;
+  }
+  if (viewComments) {
+    viewComments.textContent = `查看全部 ${totalComments} 則留言`;
   }
 
   input.value = '';

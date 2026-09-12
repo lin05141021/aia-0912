@@ -4,28 +4,42 @@
    ========================================================================== */
 :root {
   --font-family-base: "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --bg-page: #f6f7f9;
+
+  /* PANTONE 莫蘭迪柔和色系 (規範定義) */
+  --color-lemon-icing: #f6e7b9;
+  --color-nimbus-cloud: #d5d6d8;
+  --color-raindrops-roses: #e8ced5;
+  --color-cloud-dancer: #f0eee9;
+  --color-ice-melt: #c8dce8;
+  --color-peach-dust: #e8c9bc;
+  --color-almost-aqua: #cad6c5;
+  --color-orchid-tint: #d7d0db;
+
+  /* 主題背景與介面層級 */
+  --bg-page: var(--color-cloud-dancer);
   --bg-card: #ffffff;
-  --border-color: #e5e7eb;
-  --border-subtle: #f3f4f6;
+  --border-color: var(--color-nimbus-cloud);
+  --border-subtle: #f0f1f3;
 
-  --text-primary: #1f2937;
-  --text-secondary: #4b5563;
-  --text-muted: #9ca3af;
-  --text-link: #2563eb;
+  /* 文字階層 (Instagram 色階) */
+  --text-primary: #262626;
+  --text-secondary: #737373;
+  --text-muted: #8e8e8e;
+  --text-link: #00376b;
 
-  --brand-primary: #2563eb;
-  --brand-primary-hover: #1d4ed8;
-  --like-color: #ef4444;
-  --bookmark-color: #f59e0b;
+  --brand-primary: #0095f6;
+  --brand-primary-hover: #1877f2;
+  --like-color: #ed4956;
+  --bookmark-color: #262626;
 
-  --radius-card: 16px;
-  --radius-sm: 8px;
+  /* Instagram 卡片幾何與圓角 */
+  --radius-card: 8px;
+  --radius-sm: 6px;
   --radius-full: 9999px;
 
-  --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
-  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.08);
-  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.15);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.2);
 
   --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-bounce: 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -223,50 +237,43 @@ body {
   }
 }
 
-/* 卡片頂部資訊列 */
-.post-header {
+/* ==========================================================================
+   Instagram 卡片標頭列 (Header)
+   ========================================================================== */
+.post-header.ig-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem 0.85rem;
+  padding: 0.85rem 1rem 0.75rem;
 }
 
 .author-info {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.75rem;
 }
 
-.avatar-wrapper {
+.avatar-wrapper.ig-avatar-wrapper {
   position: relative;
+  padding: 2px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, var(--color-peach-dust), var(--color-raindrops-roses), var(--color-orchid-tint));
 }
 
-.avatar {
-  width: 44px;
-  height: 44px;
+.avatar.ig-avatar {
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #ffffff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   display: block;
-  background-color: #f3f4f6;
-}
-
-.online-badge {
-  position: absolute;
-  bottom: 1px;
-  right: 1px;
-  width: 10px;
-  height: 10px;
-  background-color: #10b981;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
+  background-color: var(--color-cloud-dancer);
 }
 
 .author-meta {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.1rem;
 }
 
 .name-row {
@@ -276,30 +283,43 @@ body {
 }
 
 .author-name {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--text-primary);
+  line-height: 1.2;
 }
 
+/* PANTONE 莫蘭迪主題標籤 (依主題映射) */
 .topic-tag-badge {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  color: var(--brand-primary);
-  background-color: #eff6ff;
-  padding: 0.15rem 0.5rem;
+  padding: 0.12rem 0.5rem;
   border-radius: var(--radius-full);
 }
 
-.author-handle {
-  font-size: 0.82rem;
-  color: var(--text-muted);
+.topic-tag-badge.topic-knowledge {
+  background-color: var(--color-ice-melt);
+  color: #1e3a8a;
+  border: 1px solid #bfdbfe;
+}
+
+.topic-tag-badge.topic-diary {
+  background-color: var(--color-orchid-tint);
+  color: #581c87;
+  border: 1px solid #e9d5ff;
+}
+
+.topic-tag-badge.topic-travel {
+  background-color: var(--color-peach-dust);
+  color: #9a3412;
+  border: 1px solid #fed7aa;
 }
 
 .sub-meta {
   display: flex;
   align-items: center;
-  font-size: 0.78rem;
-  color: var(--text-muted);
+  font-size: 0.74rem;
+  color: var(--text-secondary);
   gap: 0.35rem;
 }
 
@@ -315,41 +335,42 @@ body {
   vertical-align: middle;
 }
 
-/* 媒體區展示與雙擊愛心 */
-.post-media-container {
+/* ==========================================================================
+   Instagram 主視覺照片 (1:1 正方形黃金比例 & 雙擊大愛心)
+   ========================================================================== */
+.post-media-container.ig-media-container {
   position: relative;
   width: 100%;
-  background-color: #f3f4f6;
+  aspect-ratio: 1 / 1;
+  background-color: var(--color-cloud-dancer);
   cursor: pointer;
   user-select: none;
   overflow: hidden;
-  min-height: 240px;
 }
 
-.post-image {
+.post-image.ig-post-image {
   width: 100%;
-  max-height: 460px;
-  min-height: 260px;
+  height: 100%;
   object-fit: cover;
   display: block;
   transition: transform 0.4s ease;
 }
 
 .post-media-container:hover .post-image {
-  transform: scale(1.02);
+  transform: scale(1.015);
 }
 
 .media-badge {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
-  background: rgba(17, 24, 39, 0.7);
+  top: 0.85rem;
+  left: 0.85rem;
+  background: rgba(23, 23, 23, 0.68);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   color: #ffffff;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 600;
-  padding: 0.3rem 0.75rem;
+  padding: 0.25rem 0.65rem;
   border-radius: var(--radius-full);
   pointer-events: none;
 }
@@ -362,7 +383,7 @@ body {
   opacity: 0;
   pointer-events: none;
   transition: all var(--transition-bounce);
-  filter: drop-shadow(0 4px 12px rgba(239, 68, 68, 0.4));
+  filter: drop-shadow(0 4px 12px rgba(237, 73, 86, 0.4));
 }
 
 .floating-heart.active {
@@ -388,12 +409,14 @@ body {
   }
 }
 
-/* 互動工具列 */
-.post-actions {
+/* ==========================================================================
+   Instagram 互動工具列 (Like, Comment, Share, Save)
+   ========================================================================== */
+.post-actions.ig-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 1.25rem 0.5rem;
+  padding: 0.75rem 1rem 0.35rem;
 }
 
 .actions-left,
@@ -408,19 +431,21 @@ body {
   border: none;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  color: var(--text-secondary);
-  font-size: 0.88rem;
-  font-weight: 600;
+  justify-content: center;
+  color: var(--text-primary);
   cursor: pointer;
-  padding: 0.4rem 0.5rem;
+  padding: 0.25rem;
   border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  transition: transform var(--transition-fast), color var(--transition-fast);
 }
 
 .action-btn:hover {
-  background-color: var(--border-subtle);
-  color: var(--text-primary);
+  transform: scale(1.1);
+  color: var(--text-secondary);
+}
+
+.action-btn:active {
+  transform: scale(0.92);
 }
 
 .like-btn.liked {
@@ -449,63 +474,98 @@ body {
   animation: heartPulse var(--transition-bounce);
 }
 
-/* 卡片內文區 */
-.post-content {
-  padding: 0.25rem 1.25rem 1rem;
+/* ==========================================================================
+   Instagram 按讚統計列 (Likes)
+   ========================================================================== */
+.ig-likes-section {
+  padding: 0 1rem 0.35rem;
 }
 
-.post-text {
-  font-size: 0.94rem;
+.likes-counter-text {
+  font-size: 0.88rem;
+  font-weight: 700;
   color: var(--text-primary);
-  line-height: 1.7;
-  white-space: pre-line;
+}
+
+/* ==========================================================================
+   Instagram 正文首行與內文排版 (Caption & Tags)
+   ========================================================================== */
+.post-content.ig-post-content {
+  padding: 0.15rem 1rem 0.85rem;
+}
+
+.ig-caption-row {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-primary);
   word-break: break-word;
 }
 
-.post-author-tag {
+.author-name-inline {
   font-weight: 700;
-  margin-right: 0.4rem;
   color: var(--text-primary);
+  margin-right: 0.4rem;
+}
+
+.caption-body {
+  color: var(--text-primary);
+  white-space: pre-line;
 }
 
 .post-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
 }
 
 .tag {
-  color: var(--brand-primary);
-  font-size: 0.85rem;
-  font-weight: 600;
+  color: var(--text-link);
+  font-size: 0.84rem;
+  font-weight: 500;
   text-decoration: none;
-  background-color: #eff6ff;
-  padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-full);
-  transition: all var(--transition-fast);
+  transition: opacity var(--transition-fast);
 }
 
 .tag:hover {
-  background-color: #dbeafe;
+  text-decoration: underline;
+  opacity: 0.85;
 }
 
-/* 留言列表區 */
-.comments-section {
-  margin-top: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border-subtle);
+/* ==========================================================================
+   Instagram 留言區與時間戳記 (Comments & Timestamp)
+   ========================================================================== */
+.comments-section.ig-comments-section {
+  margin-top: 0.45rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  font-size: 0.88rem;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.ig-view-comments {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition-fast);
+}
+
+.ig-view-comments:hover {
+  color: var(--text-secondary);
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
 
 .comment-item {
   display: flex;
   align-items: baseline;
-  gap: 0.5rem;
-  line-height: 1.5;
+  gap: 0.4rem;
+  line-height: 1.45;
   animation: commentFadeIn 0.3s ease-out;
 }
 
@@ -527,62 +587,76 @@ body {
 }
 
 .comment-text {
-  color: var(--text-secondary);
+  color: var(--text-primary);
   word-break: break-word;
 }
 
-/* 卡片底部留言輸入框 */
-.post-footer {
-  padding: 0.75rem 1.25rem 1.1rem;
-  border-top: 1px solid var(--border-subtle);
-  background-color: #fafbfc;
+.ig-timestamp {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 0.35rem;
+  display: block;
 }
 
-.comment-input-box {
+/* ==========================================================================
+   Instagram 底部留言輸入列 (Footer Comment Bar)
+   ========================================================================== */
+.post-footer.ig-post-footer {
+  padding: 0.65rem 1rem 0.75rem;
+  border-top: 1px solid var(--border-subtle);
+  background-color: #ffffff;
+}
+
+.ig-comment-form {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background-color: #ffffff;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-full);
-  padding: 0.35rem 0.6rem 0.35rem 1rem;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  gap: 0.65rem;
 }
 
-.comment-input-box:focus-within {
-  border-color: var(--brand-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+.ig-emoji-btn {
+  background: none;
+  border: none;
+  font-size: 1.15rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.1rem;
+  transition: transform var(--transition-fast);
 }
 
-.comment-input {
+.ig-emoji-btn:hover {
+  transform: scale(1.15);
+}
+
+.comment-input.ig-comment-input {
   flex: 1;
   border: none;
   background: none;
   font-family: inherit;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   outline: none;
   color: var(--text-primary);
 }
 
-.comment-input::placeholder {
+.comment-input.ig-comment-input::placeholder {
   color: var(--text-muted);
 }
 
-.btn-send-comment {
+.btn-send-comment.ig-btn-post {
   border: none;
   background: none;
   color: var(--brand-primary);
   font-family: inherit;
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 700;
   cursor: pointer;
-  padding: 0.25rem 0.6rem;
-  border-radius: var(--radius-full);
-  transition: all var(--transition-fast);
+  padding: 0.2rem 0.4rem;
+  transition: opacity var(--transition-fast);
 }
 
-.btn-send-comment:hover {
-  background-color: #eff6ff;
+.btn-send-comment.ig-btn-post:hover {
+  opacity: 0.8;
 }
 
 /* ==========================================================================
@@ -734,6 +808,24 @@ body {
   border-color: var(--brand-primary);
   background-color: #eff6ff;
   box-shadow: 0 0 0 1px var(--brand-primary);
+}
+
+.topic-card:has(input[value="專業知識分享"]:checked) .topic-box {
+  background-color: var(--color-ice-melt);
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 1px #93c5fd;
+}
+
+.topic-card:has(input[value="心得雜記"]:checked) .topic-box {
+  background-color: var(--color-orchid-tint);
+  border-color: #d8b4fe;
+  box-shadow: 0 0 0 1px #d8b4fe;
+}
+
+.topic-card:has(input[value="資訊分享"]:checked) .topic-box {
+  background-color: var(--color-peach-dust);
+  border-color: #fdba74;
+  box-shadow: 0 0 0 1px #fdba74;
 }
 
 /* 小短文排版潤飾按鈕 */
