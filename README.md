@@ -34,9 +34,11 @@
 ```text
 aia-0912/
 ├── .agents/
-│   └── rules/
-│       ├── docs-writing.md            # 文件撰寫與風格規範
-│       └── development-guidelines.md  # 專案開發規範
+│   ├── rules/
+│   │   ├── docs-writing.md            # 文件撰寫與風格規範
+│   │   └── development-guidelines.md  # 專案開發規範
+│   └── workflows/
+│       └── ux-check.md                # 日記卡片新增 UX 流程檢核規範
 ├── index.html                         # 網頁主結構與進入點
 ├── style.css                          # 樣式定義（預設採用微軟正黑體）
 ├── app.js                             # 核心邏輯與互動行為
