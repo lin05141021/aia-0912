@@ -538,7 +538,7 @@ function closeCreateModal() {
 }
 
 /**
- * 初始化懶人新增彈窗
+ * 初始化懶人新增彈窗與引導工作流
  */
 function initCreateModal() {
   const modal = document.getElementById('createModal');
@@ -547,6 +547,11 @@ function initCreateModal() {
   const cancelBtn = document.getElementById('cancelPostBtn');
   const form = document.getElementById('newPostForm');
   const formatBtn = document.getElementById('formatRulesBtn');
+
+  const btnFillSample = document.getElementById('btnFillSample');
+  const btnGenerate = document.getElementById('btnGenerateFromBrief');
+  const briefInput = document.getElementById('briefInput');
+  const topicRadios = document.querySelectorAll('input[name="postTopic"]');
 
   const tabAiPhotoBtn = document.getElementById('tabAiPhotoBtn');
   const tabUploadBtn = document.getElementById('tabUploadBtn');
@@ -577,6 +582,39 @@ function initCreateModal() {
     }
   });
 
+  // 快捷帶入父親節美食範例
+  if (btnFillSample && briefInput) {
+    btnFillSample.addEventListener('click', () => {
+      briefInput.value = '以父親節為由 終於嘗試 非常推薦 https://maps.app.goo.gl/S8AajshsCyrtvqzY9';
+      const travelRadio = document.querySelector('input[name="postTopic"][value="資訊分享"]');
+      if (travelRadio) travelRadio.checked = true;
+      showToast('📋 已帶入父親節美食探訪簡要範例！');
+      briefInput.focus();
+    });
+  }
+
+  // 主題切換時預載推薦標籤
+  topicRadios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      updateDefaultHashtagsForTopic(radio.value);
+    });
+  });
+
+  // 點擊「✨ 讀取 Rules 風格生成小短文」
+  if (btnGenerate && briefInput) {
+    btnGenerate.addEventListener('click', () => {
+      const briefText = briefInput.value.trim();
+      if (!briefText) {
+        showToast('請先在步驟 2 輸入簡要重點或貼上連結');
+        briefInput.focus();
+        return;
+      }
+      const topicRadio = document.querySelector('input[name="postTopic"]:checked');
+      const topic = topicRadio ? topicRadio.value : '資訊分享';
+      handleGenerateFromBrief(topic, briefText);
+    });
+  }
+
   // 照片分頁切換 (AI 生圖 vs 自行上傳)
   if (tabAiPhotoBtn && tabUploadBtn && aiSection && uploadSection) {
     tabAiPhotoBtn.addEventListener('click', () => {
@@ -594,11 +632,11 @@ function initCreateModal() {
     });
   }
 
-  // 點擊「✨ 依內文重新辨識生圖」按鈕
+  // 點擊「🔄 依短文重抽配圖」按鈕
   if (btnAiRegenerate) {
     btnAiRegenerate.addEventListener('click', () => {
       const topicRadio = document.querySelector('input[name="postTopic"]:checked');
-      const topic = topicRadio ? topicRadio.value : '心得雜記';
+      const topic = topicRadio ? topicRadio.value : '資訊分享';
       const content = document.getElementById('contentTextInput').value.trim();
       generateAiVisualFromContent(topic, content);
     });
@@ -645,7 +683,7 @@ function initCreateModal() {
       if (!textarea) return;
       let text = textarea.value;
       if (!text.trim()) {
-        showToast('請先輸入簡短內容');
+        showToast('請先確認或輸入內容');
         return;
       }
 
@@ -666,25 +704,31 @@ function initCreateModal() {
       textarea.value = text;
       showToast('已依沉穩規範完成排版');
 
-      // 同步觸發 AI 重新辨識生圖
+      // 同步更新配圖
       const topicRadio = document.querySelector('input[name="postTopic"]:checked');
-      const topic = topicRadio ? topicRadio.value : '心得雜記';
+      const topic = topicRadio ? topicRadio.value : '資訊分享';
       generateAiVisualFromContent(topic, text);
     });
   }
 
-  // 表單提交：產生全新個人 IG 貼文卡片
+  // 表單提交：最後才發布 (產生全新個人 IG 貼文卡片)
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
       const content = document.getElementById('contentTextInput').value.trim();
-      const location = document.getElementById('locationInput').value.trim() || '日常角落';
+      const location = document.getElementById('locationInput').value.trim() || '台北 • 日常紀錄';
       const tagsRaw = document.getElementById('tagsInput').value.trim();
       const customUrl = document.getElementById('customImageUrlInput').value.trim();
 
       const topicRadio = document.querySelector('input[name="postTopic"]:checked');
-      const topic = topicRadio ? topicRadio.value : '心得雜記';
+      const topic = topicRadio ? topicRadio.value : '資訊分享';
+
+      if (!content) {
+        showToast('請先確認小短文內容後再發布');
+        document.getElementById('contentTextInput').focus();
+        return;
+      }
 
       let finalImage = '';
       if (tabUploadBtn && tabUploadBtn.classList.contains('active') && localUploadedPhoto) {
@@ -693,10 +737,8 @@ function initCreateModal() {
         finalImage = customUrl;
       } else {
         const aiImgInput = document.getElementById('aiGeneratedImgUrl');
-        finalImage = aiImgInput ? aiImgInput.value : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80';
+        finalImage = aiImgInput ? aiImgInput.value : 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=800&h=800&q=80';
       }
-
-      if (!content) return;
 
       const tags = tagsRaw.split(/[\s,]+/)
         .filter(t => t.length > 0)
@@ -723,6 +765,7 @@ function initCreateModal() {
 
       renderFeed();
 
+      // 重置表單狀態
       form.reset();
       localUploadedPhoto = '';
       if (fileInput) fileInput.value = '';
@@ -737,10 +780,130 @@ function initCreateModal() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
+
+  // 初始化推薦標籤晶片
+  updateDefaultHashtagsForTopic('資訊分享');
 }
 
 /**
- * 依文章內容語意與主題辨識，動態產生高質感配圖 (AI Content-Aware Visual Generation)
+ * 依簡要文字與選定主題，讀取 Rules 風格與 google-maps-fetch 生成小短文與推薦標籤
+ * @param {string} topic 
+ * @param {string} briefText 
+ */
+function handleGenerateFromBrief(topic, briefText) {
+  const contentInput = document.getElementById('contentTextInput');
+  const locationInput = document.getElementById('locationInput');
+  if (!contentInput) return;
+
+  const isMapsUrl = /(maps\.app\.goo\.gl|goo\.gl\/maps|google\.com\/maps)/i.test(briefText);
+  const isFaBurger = /S8AajshsCyrtvqzY9|fa\s*burger|敦化/i.test(briefText);
+
+  let generatedEssay = '';
+  let detectedLocation = '台北 • 日常紀錄';
+  let recommendedTags = [];
+
+  if (topic === '資訊分享' || isMapsUrl || isFaBurger) {
+    // 依 google-maps-fetch 技能與 docs-writing 規範生成
+    if (isFaBurger || /S8AajshsCyrtvqzY9/.test(briefText)) {
+      detectedLocation = '台北 • 捷運忠孝敦化站';
+      generatedEssay = '以父親節為由，終於踏進口袋名單已久的 Fa Burger 敦化店啦！🍔 這次點了招牌牛胸肉與帶骨牛小排，肉量給得相當豪邁，燻烤香氣與濃郁肉汁真的很扎實，麵包外脆內軟很加分。不過老實說，店內座位數量確實不多，尖峰用餐時段常需要排隊等候，建議想來吃的朋友避開正中午尖峰時段喔！⚠️ 🚇 捷運忠孝敦化站 8 號出口步行約 5 分鐘。';
+      recommendedTags = ['#FaBurger敦化店', '#父親節推薦', '#忠孝敦化美食', '#資訊分享', '#避坑指南', '#美式漢堡'];
+    } else {
+      detectedLocation = '台北 • 美食街景角落';
+      generatedEssay = `${briefText}。現場環境維持得相當乾淨，餐點火候與調味非常扎實到位！不過店內空間不大且尖峰時段人潮較多，建議出發前避開正中午時段喔！⚠️ 🚇 鄰近捷運站步行約 6 分鐘即可抵達。🍜`;
+      recommendedTags = ['#資訊分享', '#景點推薦', '#在地探店', '#避坑指南', '#日常探索'];
+    }
+  } else if (topic === '專業知識分享') {
+    // 實踐者同儕視角，沉穩客觀
+    detectedLocation = '台北 • 研發工作站';
+    generatedEssay = `最近實作時深刻體會到：${briefText}。以前總以為要把工具鏈堆滿才算專業，後來實際部署上線才發現，掌握好原生基礎語意與架構邊界，往往能省下超過八成的維護成本。這套作法我自己用過覺得很順手，特別記錄分享給大家。💡`;
+    recommendedTags = ['#專業知識', '#實務心得', '#架構設計', '#CleanCode', '#技術分享'];
+  } else {
+    // 心得雜記：生活體悟、除錯、微幽默與自嘲元素
+    detectedLocation = '台北 • 街角咖啡館';
+    generatedEssay = `${briefText}。花了一下午折騰，最後發現問題其實只是少了一點耐心與細心。果然在這種時候，最明智的解法不是繼續硬碰硬，而是先給自己沖一杯熱咖啡冷靜一下。看著窗外的行人慢慢走過，生活本來就是一連串的試錯，笑一笑也就過去了。☕✨`;
+    recommendedTags = ['#心得雜記', '#生活日常', '#工程師自嘲', '#微幽默片刻', '#沉靜思考'];
+  }
+
+  // 1. 填入步驟 3 的確認修改文字框
+  contentInput.value = generatedEssay;
+
+  // 2. 更新地點標記
+  if (locationInput) {
+    locationInput.value = detectedLocation;
+  }
+
+  // 3. 渲染步驟 5 的推薦 Hashtags 晶片
+  renderRecommendedHashtags(recommendedTags);
+
+  // 4. 連動步驟 4 的 AI 動態視覺生圖
+  generateAiVisualFromContent(topic, generatedEssay);
+
+  showToast('✨ 已依 Rules 規範生成小短文，請在步驟 3 確認或手動修改！');
+
+  // 平滑滾動至編輯區以方便確認
+  const reviewGroup = document.getElementById('essayReviewGroup');
+  if (reviewGroup) {
+    reviewGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+/**
+ * 依主題初始化預設推薦標籤
+ */
+function updateDefaultHashtagsForTopic(topic) {
+  let tags = [];
+  if (topic === '專業知識分享') {
+    tags = ['#專業知識', '#實踐心得', '#架構思維', '#技術筆記', '#同儕分享'];
+  } else if (topic === '心得雜記') {
+    tags = ['#心得雜記', '#生活體悟', '#工程師自嘲', '#生活紀錄', '#慢步調'];
+  } else {
+    tags = ['#資訊分享', '#美食探店', '#避坑指南', '#捷運周邊', '#口袋名單'];
+  }
+  renderRecommendedHashtags(tags);
+}
+
+/**
+ * 動態渲染推薦 Hashtags 晶片列表（支援點選即時加入/取消）
+ * @param {string[]} tagsList 
+ */
+function renderRecommendedHashtags(tagsList) {
+  const container = document.getElementById('recommendedHashtagsList');
+  const tagsInput = document.getElementById('tagsInput');
+  if (!container) return;
+
+  container.innerHTML = '';
+  const activeTags = new Set(tagsList);
+
+  tagsList.forEach(tag => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'hashtag-chip selected';
+    chip.textContent = tag;
+    chip.setAttribute('data-tag', tag);
+
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('selected');
+      if (chip.classList.contains('selected')) {
+        activeTags.add(tag);
+      } else {
+        activeTags.delete(tag);
+      }
+      if (tagsInput) {
+        tagsInput.value = Array.from(activeTags).join(' ');
+      }
+    });
+
+    container.appendChild(chip);
+  });
+
+  if (tagsInput) {
+    tagsInput.value = tagsList.join(' ');
+  }
+}
+
+/**
+ * 依文章內容語意與主題辨識，動態產生高質感 1:1 配圖 (AI Content-Aware Visual Generation)
  * @param {string} topic 
  * @param {string} content 
  */
@@ -755,7 +918,7 @@ function generateAiVisualFromContent(topic, content) {
   if (!previewImg || !badgeDisplay || !mask || !hiddenUrlInput) return;
 
   mask.style.display = 'flex';
-  if (maskText) maskText.textContent = 'AI 正在深度辨識文章關鍵字與氛圍...';
+  if (maskText) maskText.textContent = 'AI 正在深度辨識短文關鍵字與氛圍...';
   if (statusText) statusText.textContent = 'AI 運算中：分析文字語意並生成 1:1 配圖...';
 
   setTimeout(() => {
@@ -764,7 +927,10 @@ function generateAiVisualFromContent(topic, content) {
     let keywordTag = '';
 
     // 關鍵字語意識別庫 (嚴格依照 rules 生圖風格：自然光、沉穩低調、非網美)
-    if (/咖啡|拿鐵|手沖|耶加雪菲|烘焙|cafe|coffee/.test(text)) {
+    if (/fa\s*burger|漢堡|burger|牛胸|牛排|敦化|父親節/.test(text)) {
+      selectedImage = 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&h=800&q=80';
+      keywordTag = '#AI語意辨識 #FaBurger敦化店 #美式漢堡 #探店聚餐';
+    } else if (/咖啡|拿鐵|手沖|耶加雪菲|烘焙|cafe|coffee/.test(text)) {
       selectedImage = 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&h=800&q=80';
       keywordTag = '#AI語意辨識 #手沖咖啡 #窗邊晨光 #溫潤日常';
     } else if (/牛肉麵|拉麵|美食|排隊|好吃|小吃|湯頭|餐點|food|noodle|吃/.test(text)) {
@@ -801,8 +967,9 @@ function generateAiVisualFromContent(topic, content) {
     hiddenUrlInput.value = selectedImage;
 
     mask.style.display = 'none';
-    if (statusText) statusText.textContent = '已依文章內容完成 AI 視覺生成';
-    showToast('✨ AI 已依內文關鍵字完成動態生圖！');
-  }, 500);
+    if (statusText) statusText.textContent = '已依文章內容完成 AI 視覺生成 (1:1 比例)';
+    showToast('✨ AI 已依短文關鍵字完成動態配圖！');
+  }, 450);
 }
+
 

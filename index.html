@@ -81,7 +81,7 @@
   <div class="modal-overlay" id="createModal" aria-hidden="true">
     <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-header">
-        <h3 id="modalTitle" class="modal-title">✨ 寫下隨手小心得</h3>
+        <h3 id="modalTitle" class="modal-title">✨ 新增隨手筆記（依 Rules 智慧生成）</h3>
         <button class="icon-btn modal-close-btn" id="closeCreateModalBtn" aria-label="關閉視窗">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -91,16 +91,19 @@
       </div>
 
       <form id="newPostForm" class="modal-form">
-        <!-- 步驟一：主題三選一（莫蘭迪色彩對應） -->
-        <div class="form-group">
-          <label class="form-label">選擇筆記主題</label>
+        <!-- 步驟 1：主題三選一（莫蘭迪色彩對應） -->
+        <div class="wizard-step-group">
+          <div class="step-header">
+            <span class="step-badge">步驟 1</span>
+            <label class="form-label">選擇筆記主題</label>
+          </div>
           <div class="topic-options-grid">
             <label class="topic-card topic-knowledge">
-              <input type="radio" name="postTopic" value="專業知識分享" checked>
+              <input type="radio" name="postTopic" value="專業知識分享">
               <div class="topic-box">
                 <span class="topic-icon">💡</span>
                 <strong>專業知識分享</strong>
-                <small>閱讀筆記、文章金句與實作技巧</small>
+                <small>閱讀心得、文章金句與實踐分享</small>
               </div>
             </label>
             <label class="topic-card topic-diary">
@@ -108,37 +111,67 @@
               <div class="topic-box">
                 <span class="topic-icon">☕</span>
                 <strong>心得雜記</strong>
-                <small>日常生活、微幽默自嘲與思維沉澱</small>
+                <small>日常生活、自嘲微幽默與思維沉澱</small>
               </div>
             </label>
             <label class="topic-card topic-travel">
-              <input type="radio" name="postTopic" value="資訊分享">
+              <input type="radio" name="postTopic" value="資訊分享" checked>
               <div class="topic-box">
                 <span class="topic-icon">🚶‍♂️</span>
                 <strong>資訊分享</strong>
-                <small>景點美食實訪、避坑情報與生活探索</small>
+                <small>景點推薦、在地美食實訪與避坑情報</small>
               </div>
             </label>
           </div>
         </div>
 
-        <!-- 步驟二：簡短想法輸入（核心懶人功能） -->
-        <div class="form-group">
-          <label for="contentTextInput" class="form-label">心得隨筆（隨便寫兩句即可）</label>
-          <textarea id="contentTextInput" rows="4" placeholder="簡短寫下今天想記錄的事，幾句話即可..." required></textarea>
-          <div class="content-assistant-row">
-            <button type="button" class="btn-text-action" id="formatRulesBtn">
-              🪄 一鍵依沉穩規範自動潤飾排版
-            </button>
-            <span class="text-hint">自動加入中英半形空格與全形標點</span>
+        <!-- 步驟 2：簡要輸入與智慧生成 -->
+        <div class="wizard-step-group">
+          <div class="step-header">
+            <span class="step-badge">步驟 2</span>
+            <label for="briefInput" class="form-label">輸入簡要重點（支援 Google Maps 網址）</label>
+          </div>
+          <div class="brief-input-wrapper">
+            <textarea id="briefInput" rows="2" placeholder="只打簡要即可，例如：以父親節為由 終於嘗試 非常推薦 https://maps.app.goo.gl/S8AajshsCyrtvqzY9"></textarea>
+            <div class="brief-tool-bar">
+              <button type="button" class="btn-sample-shortcut" id="btnFillSample">
+                📋 帶入父親節美食範例
+              </button>
+              <button type="button" class="btn btn-generate-magic" id="btnGenerateFromBrief">
+                ✨ 讀取 Rules 風格生成小短文
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- 步驟三：照片設定（1:1 IG 經典正方形規格） -->
-        <div class="form-group">
-          <label class="form-label">IG 卡片配圖（AI 依內文自動生成 或 自行上傳）</label>
+        <!-- 步驟 3：短文確認與修改 (在彈窗中即時檢核編輯) -->
+        <div class="wizard-step-group" id="essayReviewGroup">
+          <div class="step-header">
+            <span class="step-badge">步驟 3</span>
+            <div class="step-label-wrapper">
+              <label for="contentTextInput" class="form-label">確認並修改小短文（依規範生成）</label>
+              <span class="step-subhint">可直接在下方編輯調整，確認無誤後再進行後續步驟</span>
+            </div>
+          </div>
+          <div class="essay-editor-box">
+            <textarea id="contentTextInput" rows="4" placeholder="點擊上方「讀取 Rules 風格生成小短文」後，短文將自動呈現在此供您確認與修改..." required></textarea>
+            <div class="content-assistant-row">
+              <button type="button" class="btn-text-action" id="formatRulesBtn">
+                🪄 一鍵依沉穩規範自動潤飾排版
+              </button>
+              <span class="text-hint">自動補齊中英半形空格、全形標點與去除浮誇詞</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 步驟 4：照片設定（1:1 IG 經典正方形規格） -->
+        <div class="wizard-step-group">
+          <div class="step-header">
+            <span class="step-badge">步驟 4</span>
+            <label class="form-label">選擇 IG 卡片配圖（AI 依內文動態生成 或 自行上傳）</label>
+          </div>
           <div class="photo-method-tabs">
-            <button type="button" class="tab-btn active" id="tabAiPhotoBtn">✨ AI 依內文智慧生圖</button>
+            <button type="button" class="tab-btn active" id="tabAiPhotoBtn">✨ AI 依內文動態生成</button>
             <button type="button" class="tab-btn" id="tabUploadBtn">📸 自行上傳照片</button>
           </div>
 
@@ -148,27 +181,27 @@
               <div class="ai-visual-ctrl">
                 <div class="ai-status-indicator" id="aiStatusIndicator">
                   <span class="pulse-dot"></span>
-                  <span id="aiStatusText">已連線 AI 視覺生成：依據您輸入的心得自動分析配圖</span>
+                  <span id="aiStatusText">AI 視覺就緒：依文章內容與地點語意自動匹配 1:1 配圖</span>
                 </div>
                 <button type="button" class="btn btn-secondary btn-sm" id="btnAiRegenerate">
-                  ✨ 依內文重新辨識生圖
+                  🔄 依短文重抽配圖
                 </button>
               </div>
 
               <!-- AI 1:1 即時預覽容器 -->
               <div class="ai-preview-container" id="aiPreviewContainer">
-                <img id="aiGeneratedPreviewImg" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80" alt="AI 依文章內容生成的配圖" class="ai-preview-img">
+                <img id="aiGeneratedPreviewImg" src="https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=800&h=800&q=80" alt="AI 依文章內容生成的配圖" class="ai-preview-img">
                 <div class="ai-keyword-badge" id="aiKeywordBadge">
                   <span class="ai-badge-icon">🤖</span>
-                  <span id="aiKeywordsDisplay">#AI語意辨識 #工作桌螢幕 #冷灰科技</span>
+                  <span id="aiKeywordsDisplay">#AI語意辨識 #美食探店 #FaBurger #自然光</span>
                 </div>
                 <div class="ai-generating-mask" id="aiGeneratingMask" style="display: none;">
                   <div class="ai-spinner"></div>
-                  <p id="aiMaskText">AI 正在深度辨識文章關鍵字與氛圍...</p>
+                  <p id="aiMaskText">AI 正在深度辨識短文關鍵字與氛圍...</p>
                 </div>
               </div>
             </div>
-            <input type="hidden" id="aiGeneratedImgUrl" value="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80">
+            <input type="hidden" id="aiGeneratedImgUrl" value="https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=800&h=800&q=80">
             <input type="url" id="customImageUrlInput" class="form-input-sub" placeholder="或貼上自訂圖片網址 (https://...)">
           </div>
 
@@ -189,22 +222,39 @@
           </div>
         </div>
 
-        <!-- 步驟四：附加資訊（地點與標籤） -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="locationInput" class="form-label">地點標記（選填）</label>
-            <input type="text" id="locationInput" placeholder="例如：台北 • 永康街角落咖啡" value="台北 • 書房角落">
+        <!-- 步驟 5：選推薦 Hashtag (注音「選推薦 hashtag」精準實作) -->
+        <div class="wizard-step-group">
+          <div class="step-header">
+            <span class="step-badge">步驟 5</span>
+            <div class="step-label-wrapper">
+              <label class="form-label">選推薦 Hashtag（點選標籤即時加入）</label>
+              <span class="step-subhint">AI 依內文自動提煉關鍵字，點擊快速勾選或取消</span>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="tagsInput" class="form-label">標籤（自動帶入）</label>
-            <input type="text" id="tagsInput" placeholder="#日常筆記 #閱讀隨想" value="#日常記錄 #隨手心得">
+          <div class="recommended-hashtags-box">
+            <div class="hashtag-chips-list" id="recommendedHashtagsList">
+              <!-- 由 app.js 動態渲染推薦的 Hashtag 晶片按鈕 -->
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 0.5rem;">
+            <label for="tagsInput" class="form-label" style="font-size: 0.78rem;">目前選定之 Hashtags（亦可直接手動輸入）</label>
+            <input type="text" id="tagsInput" placeholder="#資訊分享 #美食探店 #避坑指南" value="#資訊分享 #美食探店 #避坑指南">
           </div>
         </div>
 
-        <!-- 表單操作 -->
+        <!-- 步驟 6：地點標記與最後發佈 -->
+        <div class="wizard-step-group">
+          <div class="step-header">
+            <span class="step-badge">步驟 6</span>
+            <label for="locationInput" class="form-label">地點標記（由 Google Maps 自動帶入或手動輸入）</label>
+          </div>
+          <input type="text" id="locationInput" placeholder="例如：台北 • 捷運忠孝敦化站" value="台北 • 捷運忠孝敦化站">
+        </div>
+
+        <!-- 表單操作：最後才發布 -->
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" id="cancelPostBtn">取消</button>
-          <button type="submit" class="btn btn-primary">儲存並產生 IG 卡片</button>
+          <button type="submit" class="btn btn-primary" id="submitPostBtn">🚀 確認無誤，發佈 IG 筆記卡片</button>
         </div>
       </form>
     </div>
