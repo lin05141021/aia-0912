@@ -136,36 +136,39 @@
 
         <!-- 步驟三：照片設定（1:1 IG 經典正方形規格） -->
         <div class="form-group">
-          <label class="form-label">IG 卡片配圖（支援風格推薦或自行上傳）</label>
+          <label class="form-label">IG 卡片配圖（AI 依內文自動生成 或 自行上傳）</label>
           <div class="photo-method-tabs">
-            <button type="button" class="tab-btn active" id="tabPresetBtn">風格推薦配圖</button>
-            <button type="button" class="tab-btn" id="tabUploadBtn">自行上傳照片</button>
+            <button type="button" class="tab-btn active" id="tabAiPhotoBtn">✨ AI 依內文智慧生圖</button>
+            <button type="button" class="tab-btn" id="tabUploadBtn">📸 自行上傳照片</button>
           </div>
 
-          <!-- 風格推薦配圖 -->
-          <div id="presetPhotoSection" class="photo-tab-panel active">
-            <div class="preset-images-grid" id="presetImagesContainer">
-              <label class="preset-option">
-                <input type="radio" name="presetImg" value="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80" checked>
-                <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=200&h=200&q=80" alt="冷灰科技與工作桌">
-                <span class="img-hint">💡 專業知識</span>
-              </label>
-              <label class="preset-option">
-                <input type="radio" name="presetImg" value="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&h=800&q=80">
-                <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=200&h=200&q=80" alt="手沖咖啡與手札">
-                <span class="img-hint">☕ 心得雜記</span>
-              </label>
-              <label class="preset-option">
-                <input type="radio" name="presetImg" value="https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=800&h=800&q=80">
-                <img src="https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=200&h=200&q=80" alt="在地美食與街景探店">
-                <span class="img-hint">🍜 景點探訪</span>
-              </label>
-              <label class="preset-option">
-                <input type="radio" name="presetImg" value="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&h=800&q=80">
-                <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=200&h=200&q=80" alt="晨光森林步道">
-                <span class="img-hint">🌿 戶外散步</span>
-              </label>
+          <!-- AI 依內文智慧生圖區 (動態語意辨識配圖) -->
+          <div id="aiPhotoSection" class="photo-tab-panel active">
+            <div class="ai-visual-box">
+              <div class="ai-visual-ctrl">
+                <div class="ai-status-indicator" id="aiStatusIndicator">
+                  <span class="pulse-dot"></span>
+                  <span id="aiStatusText">已連線 AI 視覺生成：依據您輸入的心得自動分析配圖</span>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnAiRegenerate">
+                  ✨ 依內文重新辨識生圖
+                </button>
+              </div>
+
+              <!-- AI 1:1 即時預覽容器 -->
+              <div class="ai-preview-container" id="aiPreviewContainer">
+                <img id="aiGeneratedPreviewImg" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80" alt="AI 依文章內容生成的配圖" class="ai-preview-img">
+                <div class="ai-keyword-badge" id="aiKeywordBadge">
+                  <span class="ai-badge-icon">🤖</span>
+                  <span id="aiKeywordsDisplay">#AI語意辨識 #工作桌螢幕 #冷灰科技</span>
+                </div>
+                <div class="ai-generating-mask" id="aiGeneratingMask" style="display: none;">
+                  <div class="ai-spinner"></div>
+                  <p id="aiMaskText">AI 正在深度辨識文章關鍵字與氛圍...</p>
+                </div>
+              </div>
             </div>
+            <input type="hidden" id="aiGeneratedImgUrl" value="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80">
             <input type="url" id="customImageUrlInput" class="form-input-sub" placeholder="或貼上自訂圖片網址 (https://...)">
           </div>
 

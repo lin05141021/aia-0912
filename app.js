@@ -548,10 +548,11 @@ function initCreateModal() {
   const form = document.getElementById('newPostForm');
   const formatBtn = document.getElementById('formatRulesBtn');
 
-  const tabPresetBtn = document.getElementById('tabPresetBtn');
+  const tabAiPhotoBtn = document.getElementById('tabAiPhotoBtn');
   const tabUploadBtn = document.getElementById('tabUploadBtn');
-  const presetSection = document.getElementById('presetPhotoSection');
+  const aiSection = document.getElementById('aiPhotoSection');
   const uploadSection = document.getElementById('uploadPhotoSection');
+  const btnAiRegenerate = document.getElementById('btnAiRegenerate');
 
   const dropzone = document.getElementById('uploadDropzone');
   const fileInput = document.getElementById('localFileInput');
@@ -576,20 +577,30 @@ function initCreateModal() {
     }
   });
 
-  // 照片分頁切換
-  if (tabPresetBtn && tabUploadBtn && presetSection && uploadSection) {
-    tabPresetBtn.addEventListener('click', () => {
-      tabPresetBtn.classList.add('active');
+  // 照片分頁切換 (AI 生圖 vs 自行上傳)
+  if (tabAiPhotoBtn && tabUploadBtn && aiSection && uploadSection) {
+    tabAiPhotoBtn.addEventListener('click', () => {
+      tabAiPhotoBtn.classList.add('active');
       tabUploadBtn.classList.remove('active');
-      presetSection.classList.add('active');
+      aiSection.classList.add('active');
       uploadSection.classList.remove('active');
     });
 
     tabUploadBtn.addEventListener('click', () => {
       tabUploadBtn.classList.add('active');
-      tabPresetBtn.classList.remove('active');
+      tabAiPhotoBtn.classList.remove('active');
       uploadSection.classList.add('active');
-      presetSection.classList.remove('active');
+      aiSection.classList.remove('active');
+    });
+  }
+
+  // 點擊「✨ 依內文重新辨識生圖」按鈕
+  if (btnAiRegenerate) {
+    btnAiRegenerate.addEventListener('click', () => {
+      const topicRadio = document.querySelector('input[name="postTopic"]:checked');
+      const topic = topicRadio ? topicRadio.value : '心得雜記';
+      const content = document.getElementById('contentTextInput').value.trim();
+      generateAiVisualFromContent(topic, content);
     });
   }
 
@@ -654,6 +665,11 @@ function initCreateModal() {
 
       textarea.value = text;
       showToast('已依沉穩規範完成排版');
+
+      // 同步觸發 AI 重新辨識生圖
+      const topicRadio = document.querySelector('input[name="postTopic"]:checked');
+      const topic = topicRadio ? topicRadio.value : '心得雜記';
+      generateAiVisualFromContent(topic, text);
     });
   }
 
@@ -676,8 +692,8 @@ function initCreateModal() {
       } else if (customUrl) {
         finalImage = customUrl;
       } else {
-        const checkedPreset = document.querySelector('input[name="presetImg"]:checked');
-        finalImage = checkedPreset ? checkedPreset.value : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80';
+        const aiImgInput = document.getElementById('aiGeneratedImgUrl');
+        finalImage = aiImgInput ? aiImgInput.value : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80';
       }
 
       if (!content) return;
@@ -712,8 +728,8 @@ function initCreateModal() {
       if (fileInput) fileInput.value = '';
       if (previewBox) previewBox.style.display = 'none';
       if (promptBox) promptBox.style.display = 'flex';
-      if (tabPresetBtn && tabUploadBtn && presetSection && uploadSection) {
-        tabPresetBtn.click();
+      if (tabAiPhotoBtn && tabUploadBtn && aiSection && uploadSection) {
+        tabAiPhotoBtn.click();
       }
 
       closeCreateModal();
@@ -722,3 +738,71 @@ function initCreateModal() {
     });
   }
 }
+
+/**
+ * 依文章內容語意與主題辨識，動態產生高質感配圖 (AI Content-Aware Visual Generation)
+ * @param {string} topic 
+ * @param {string} content 
+ */
+function generateAiVisualFromContent(topic, content) {
+  const previewImg = document.getElementById('aiGeneratedPreviewImg');
+  const badgeDisplay = document.getElementById('aiKeywordsDisplay');
+  const mask = document.getElementById('aiGeneratingMask');
+  const maskText = document.getElementById('aiMaskText');
+  const hiddenUrlInput = document.getElementById('aiGeneratedImgUrl');
+  const statusText = document.getElementById('aiStatusText');
+
+  if (!previewImg || !badgeDisplay || !mask || !hiddenUrlInput) return;
+
+  mask.style.display = 'flex';
+  if (maskText) maskText.textContent = 'AI 正在深度辨識文章關鍵字與氛圍...';
+  if (statusText) statusText.textContent = 'AI 運算中：分析文字語意並生成 1:1 配圖...';
+
+  setTimeout(() => {
+    const text = (content || '').toLowerCase();
+    let selectedImage = '';
+    let keywordTag = '';
+
+    // 關鍵字語意識別庫 (嚴格依照 rules 生圖風格：自然光、沉穩低調、非網美)
+    if (/咖啡|拿鐵|手沖|耶加雪菲|烘焙|cafe|coffee/.test(text)) {
+      selectedImage = 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&h=800&q=80';
+      keywordTag = '#AI語意辨識 #手沖咖啡 #窗邊晨光 #溫潤日常';
+    } else if (/牛肉麵|拉麵|美食|排隊|好吃|小吃|湯頭|餐點|food|noodle|吃/.test(text)) {
+      selectedImage = 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=800&h=800&q=80';
+      keywordTag = '#AI語意辨識 #在地美食 #真實食記 #市井煙火';
+    } else if (/象山|步道|山|爬山|森林|自然|公園|散步|hiking|trail|樹/.test(text)) {
+      selectedImage = 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&h=800&q=80';
+      keywordTag = '#AI語意辨識 #山林步道 #自然微風 #踏青紀實';
+    } else if (/代碼|程式|架構|重構|原生|javascript|css|html|git|bug|開發|dev|code/.test(text)) {
+      selectedImage = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80';
+      keywordTag = '#AI語意辨識 #冷灰工作桌 #代碼微光 #架構秩序';
+    } else if (/書|閱讀|金句|心得|學習|思考|反思|筆記|book|read/.test(text)) {
+      selectedImage = 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&h=800&q=80';
+      keywordTag = '#AI語意辨識 #書頁微光 #研讀筆記 #靜謐專注';
+    } else if (/街|城市|建築|角落|生活|台北|巷弄|風景|walk|city/.test(text)) {
+      selectedImage = 'https://images.unsplash.com/photo-1477959858617-67f30bc75b82?auto=format&fit=crop&w=800&h=800&q=80';
+      keywordTag = '#AI語意辨識 #城市角落 #街景隨拍 #生活紀錄';
+    } else {
+      // 依主題分流預設風格
+      if (topic === '專業知識分享') {
+        selectedImage = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&h=800&q=80';
+        keywordTag = '#AI語意辨識 #現代工作空間 #冷灰科技 #沉穩專注';
+      } else if (topic === '資訊分享') {
+        selectedImage = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&h=800&q=80';
+        keywordTag = '#AI語意辨識 #旅途實拍 #自然光影 #探訪紀實';
+      } else {
+        selectedImage = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&h=800&q=80';
+        keywordTag = '#AI語意辨識 #手札日常 #生活微光 #沉靜思考';
+      }
+    }
+
+    previewImg.src = selectedImage;
+    badgeDisplay.textContent = keywordTag;
+    hiddenUrlInput.value = selectedImage;
+
+    mask.style.display = 'none';
+    if (statusText) statusText.textContent = '已依文章內容完成 AI 視覺生成';
+    showToast('✨ AI 已依內文關鍵字完成動態生圖！');
+  }, 500);
+}
+

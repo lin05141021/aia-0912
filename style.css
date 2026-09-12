@@ -871,48 +871,119 @@ body {
   display: block;
 }
 
-.preset-images-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+/* ==========================================================================
+   AI 依內文智慧生圖區 (AI Content-Aware Visual Generation)
+   ========================================================================== */
+.ai-visual-box {
+  margin-top: 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background-color: #fafbfc;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.preset-option {
+.ai-visual-ctrl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ai-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+  animation: pulseDot 1.8s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.ai-preview-container {
   position: relative;
-  cursor: pointer;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  aspect-ratio: 1 / 1;
   border-radius: var(--radius-sm);
   overflow: hidden;
-  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+  background-color: var(--color-cloud-dancer);
 }
 
-.preset-option input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-}
-
-.preset-option img {
+.ai-preview-img {
   width: 100%;
-  aspect-ratio: 1;
+  height: 100%;
   object-fit: cover;
   display: block;
+  transition: opacity 0.3s ease;
 }
 
-.preset-option .img-hint {
+.ai-keyword-badge {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.65);
+  bottom: 0.6rem;
+  left: 0.6rem;
+  right: 0.6rem;
+  background: rgba(17, 24, 39, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: #ffffff;
-  font-size: 0.62rem;
-  text-align: center;
-  padding: 0.15rem 0;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.preset-option:has(input[type="radio"]:checked) {
-  border-color: #0095f6;
-  box-shadow: 0 0 0 2px rgba(0, 149, 246, 0.4);
+.ai-generating-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: #ffffff;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.ai-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: aiSpin 0.8s linear infinite;
+}
+
+@keyframes aiSpin {
+  to { transform: rotate(360deg); }
 }
 
 .upload-dropzone {
