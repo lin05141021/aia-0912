@@ -1,15 +1,799 @@
+/* ==========================================================================
+   全域變數與重設樣式
+   ========================================================================== */
+:root {
+  --font-family-base: "Microsoft JhengHei", "PingFang TC", "Helvetica Neue", -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  --bg-page: #f7f8fa;
+  --bg-card: #ffffff;
+  --border-color: #eaecef;
+  --border-subtle: #f0f2f5;
+  
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-muted: #8c96a5;
+  --text-link: #2563eb;
+  
+  --brand-primary: #3b82f6;
+  --brand-primary-hover: #2563eb;
+  --like-color: #ef4444;
+  --bookmark-color: #f59e0b;
+  
+  --radius-card: 16px;
+  --radius-sm: 8px;
+  --radius-full: 9999px;
+  
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.15);
+  
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  font-family: "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  margin: 0;
-  padding: 2rem;
-  background-color: #f9f9f9;
-  color: #333;
+  font-family: var(--font-family-base);
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
-h1 {
-  color: #2c3e50;
+/* ==========================================================================
+   頁面頂部導航列 (App Header)
+   ========================================================================== */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.85rem 1.5rem;
+}
+
+.header-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.brand-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.brand-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ==========================================================================
+   按鈕系統 (Button System)
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.btn-primary {
+  background-color: var(--brand-primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--brand-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.btn-secondary {
+  background-color: #f3f4f6;
+  color: var(--text-secondary);
+}
+
+.btn-secondary:hover {
+  background-color: #e5e7eb;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.icon-btn:hover {
+  color: var(--text-primary);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================================================
+   動態牆容器 (Feed Container)
+   ========================================================================== */
+.feed-container {
+  max-width: 580px;
+  margin: 1.75rem auto 3.5rem;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ==========================================================================
+   社群圖文心得卡片 (Post Card)
+   ========================================================================== */
+.post-card {
+  background-color: var(--bg-card);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+  animation: cardFadeIn 0.45s ease-out;
+}
+
+.post-card:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 1. 卡片頭部 (Header) */
+.post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.85rem;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.avatar-wrapper {
+  position: relative;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  display: block;
+}
+
+.online-badge {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 10px;
+  height: 10px;
+  background-color: #10b981;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+}
+
+.author-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.author-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.author-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  background-color: var(--brand-primary);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 900;
+  border-radius: 50%;
+}
+
+.author-handle {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.sub-meta {
+  display: flex;
+  align-items: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  gap: 0.35rem;
+}
+
+.location-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--text-secondary);
+}
+
+.icon-inline {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* 2. 卡片媒體區 (Media Showcase) */
+.post-media-container {
+  position: relative;
+  width: 100%;
+  background-color: #f3f4f6;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+}
+
+.post-image {
+  width: 100%;
+  max-height: 460px;
+  min-height: 280px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.post-media-container:hover .post-image {
+  transform: scale(1.02);
+}
+
+.media-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(17, 24, 39, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  pointer-events: none;
+}
+
+/* 雙擊圖片爆發大愛心效果 */
+.floating-heart {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+  transition: all var(--transition-bounce);
+  filter: drop-shadow(0 4px 12px rgba(255, 45, 85, 0.4));
+}
+
+.floating-heart.active {
+  animation: heartPopEffect 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes heartPopEffect {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  35% {
+    transform: translate(-50%, -50%) scale(1.25);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* 3. 卡片互動列 (Actions Bar) */
+.post-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem 0.5rem;
+}
+
+.actions-left,
+.actions-right {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.action-btn:hover {
+  background-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+/* 愛心按鈕與已按讚樣式 */
+.like-btn.liked {
+  color: var(--like-color);
+}
+
+.like-btn.liked .heart-icon {
+  fill: var(--like-color);
+  stroke: var(--like-color);
+  animation: heartPulse var(--transition-bounce);
+}
+
+@keyframes heartPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* 書籤收藏按鈕樣式 */
+.bookmark-btn.saved {
+  color: var(--bookmark-color);
+}
+
+.bookmark-btn.saved .bookmark-icon {
+  fill: var(--bookmark-color);
+  stroke: var(--bookmark-color);
+  animation: heartPulse var(--transition-bounce);
+}
+
+/* 4. 卡片內容區 (Content & Tags) */
+.post-content {
+  padding: 0.25rem 1.25rem 1rem;
+}
+
+.post-text {
+  font-size: 0.94rem;
+  color: var(--text-primary);
+  line-height: 1.7;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.post-author-tag {
+  font-weight: 700;
+  margin-right: 0.4rem;
+  color: var(--text-primary);
+}
+
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.tag {
+  color: var(--brand-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  background-color: #eff6ff;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.tag:hover {
+  background-color: #dbeafe;
+  color: var(--brand-primary-hover);
+}
+
+/* 5. 留言列表 (Comments Section) */
+.comments-section {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+}
+
+.comment-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  line-height: 1.5;
+  animation: commentFadeIn 0.3s ease-out;
+}
+
+@keyframes commentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.comment-user {
+  font-weight: 700;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.comment-text {
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+/* 6. 底部留言輸入框 (Footer Input) */
+.post-footer {
+  padding: 0.75rem 1.25rem 1.1rem;
+  border-top: 1px solid var(--border-subtle);
+  background-color: #fafbfc;
+}
+
+.comment-input-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 0.35rem 0.6rem 0.35rem 1rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.comment-input-box:focus-within {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.comment-input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 0.88rem;
+  outline: none;
+  color: var(--text-primary);
+}
+
+.comment-input::placeholder {
+  color: var(--text-muted);
+}
+
+.btn-send-comment {
+  border: none;
+  background: none;
+  color: var(--brand-primary);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.btn-send-comment:hover {
+  background-color: #eff6ff;
+}
+
+/* ==========================================================================
+   彈出視窗：新增心得 (Modal Overlay & Dialog)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-modal);
+  transform: translateY(20px) scale(0.97);
+  transition: transform var(--transition-bounce);
+}
+
+.modal-overlay.active .modal-content {
+  transform: translateY(0) scale(1);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-form {
+  padding: 1.25rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.form-group label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"],
+.form-group textarea {
+  font-family: inherit;
+  font-size: 0.92rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.form-input-sub {
+  margin-top: 0.45rem;
+}
+
+.preset-images-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+}
+
+.preset-option {
+  position: relative;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.preset-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.preset-option img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+}
+
+.preset-option:has(input[type="radio"]:checked) {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+  transform: scale(0.96);
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* ==========================================================================
+   輕量 Toast 提示訊息 (Toast Notification)
+   ========================================================================== */
+.toast-container {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast-item {
+  background-color: rgba(17, 24, 39, 0.9);
+  color: #ffffff;
+  padding: 0.65rem 1.25rem;
+  border-radius: var(--radius-full);
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  animation: toastFadeIn 0.3s ease-out, toastFadeOut 0.3s ease-in 2.2s forwards;
+}
+
+@keyframes toastFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toastFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* ==========================================================================
+   響應式設計 (Responsive Styles)
+   ========================================================================== */
+@media (max-width: 600px) {
+  .app-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .brand-title {
+    font-size: 1.05rem;
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
+
+  .btn {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.82rem;
+  }
+
+  .feed-container {
+    margin-top: 1rem;
+    padding: 0 0.5rem;
+    gap: 1.25rem;
+  }
+
+  .post-card {
+    border-radius: 12px;
+  }
+
+  .post-header {
+    padding: 0.85rem 1rem;
+  }
+
+  .post-media-container .post-image {
+    max-height: 380px;
+    min-height: 240px;
+  }
+
+  .post-actions {
+    padding: 0.75rem 1rem 0.4rem;
+  }
+
+  .post-content {
+    padding: 0.25rem 1rem 0.85rem;
+  }
+
+  .post-footer {
+    padding: 0.65rem 1rem 0.85rem;
+  }
+
+  .preset-images-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
