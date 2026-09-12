@@ -1,87 +1,85 @@
 /**
- * 社群生活札記 - 核心邏輯與互動行為
- * 遵循 .agents/rules/development-guidelines.md 與 .agents/workflows/ux-check.md 規範
+ * 個人 IG 生活筆記牆 - 核心邏輯
+ * 專為「懶人養成紀錄習慣」設計，模擬單一帳號之 IG 貼文歸檔格式
+ * 遵循 .agents/rules/docs-writing.md 與 development-guidelines.md
  */
 
-const STORAGE_KEY = 'aia_user_diary_posts';
+const STORAGE_KEY = 'aia_user_ig_journal_posts';
 
-// 預設示範資料 (初次載入且 localStorage 為空時使用)
+// 全站統一之單一作者帳號資訊 (非多人社群)
+const CURRENT_USER = {
+  handle: '@daily_log',
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&h=160&q=80',
+  bio: '生活觀察與技術閱讀雜記。不需要長篇大論，隨手幾句話、一張照片，讓懶散也能自然沉澱出專屬的生活足跡。'
+};
+
+// 預設三大主題之示範貼文 (初次載入或清空時載入)
 const DEFAULT_POSTS = [
   {
     id: 'post-1',
-    author: '林小花 • 艾莉絲',
-    handle: '@alice_daily',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80',
-    topic: '心得雜記',
-    location: '台北 • 永康街角落咖啡',
+    topic: '專業知識分享',
+    topicClass: 'topic-knowledge',
+    location: '台北 • 研發工作站',
     timeText: '2 小時前',
     timestamp: Date.now() - 7200000,
-    mediaBadge: '☕ 今日份溫暖',
-    image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1000&q=80',
-    content: '今天在轉角巷子裡新開的咖啡館待了一下午。點了日曬耶加雪菲，入口帶點清爽的柑橘與茉莉花香。窗邊剛好有陽光灑進來，讀了幾章很久以前買的書，突然體會到「讓步調慢下來」的踏實感。生活裡的很多焦慮，只要給自己一杯咖啡的時間，好像就能慢慢解開。☕✨',
-    tags: ['#日常筆記', '#咖啡時光', '#生活碎片', '#慢活練習'],
-    likes: 142,
+    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80',
+    content: '今天讀了 Clean Architecture 的第二章，特別有感觸：「架構的目標是讓系統能夠盡可能延遲做出重大決策的時間。」我自己實作原生前端這幾天，深深體會到不引入複雜打包套件的輕盈感。掌握好原生的 Fetch 與 Event Delegation，往往就能解決八成以上的問題。',
+    tags: ['#專業知識', '#閱讀筆記', '#架構設計', '#CleanCode'],
+    likes: 128,
     isLiked: false,
     isSaved: false,
     comments: [
-      { user: '陳小宇', text: '這家採光真的很舒服！上週去過一次，手沖真的很專業。' },
-      { user: 'Emma_Life', text: '好喜歡這段文字的平靜感，週末也想去坐坐～' }
+      { user: 'read_fan', text: '延遲決策那段真的很經典，寫得簡潔有力！' }
     ]
   },
   {
     id: 'post-2',
-    author: '大衛 • 技術筆記',
-    handle: '@david_dev',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80',
-    topic: '專業知識分享',
-    location: '台北 • 研發工作站',
+    topic: '心得雜記',
+    topicClass: 'topic-diary',
+    location: '台北 • 永康街角落咖啡',
     timeText: '5 小時前',
     timestamp: Date.now() - 18000000,
-    mediaBadge: '💡 架構與原生 Web',
-    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1000&q=80',
-    content: '今天重構前端元件時，再次感受到「極簡至上」的威力。不依賴厚重的第三方套件，用原生的 HTML5、CSS Flexbox 與 ES6+ 事件委派，程式碼不到 300 行就完成了流暢的動態互動。架構越純粹，維護成本就越低。',
-    tags: ['#前端開發', '#原生Web', '#架構設計', '#乾貨分享'],
-    likes: 89,
+    image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&h=800&q=80',
+    content: '下午 debug 兩小時，最後發現只是少打一個閉合括號，果然寫代碼最好的解法就是先去泡一杯手沖咖啡。坐在窗邊曬著微溫的陽光，看著蒸氣慢慢散開，突然覺得這種微小的挫折其實也挺可愛的。生活慢一點，答案自然會浮出來。☕✨',
+    tags: ['#心得雜記', '#工程師日常', '#咖啡時光', '#自嘲片刻'],
+    likes: 95,
     isLiked: false,
     isSaved: false,
     comments: [
-      { user: '工程師老李', text: '認同！原生技術掌握好，很多時候根本不需要殺雞用牛刀。' }
+      { user: 'coffee_lover', text: '少一個括號的心情太真實了哈哈～' }
     ]
   },
   {
     id: 'post-3',
-    author: '阿倫 • 散步筆記',
-    handle: '@alan_walk',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80',
     topic: '資訊分享',
+    topicClass: 'topic-travel',
     location: '台北 • 象山步道轉角牛肉麵',
-    timeText: '8 小時前',
-    timestamp: Date.now() - 28800000,
-    mediaBadge: '🚶‍♂️ 探店與實訪避坑',
-    image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=1000&q=80',
-    content: '週末趁天氣放晴去爬象山，下山順道繞去吃這家老字號牛肉麵啦！🍜 牛肉燉得軟嫩入味，紅燒湯頭很順口，價格也很實在喔。不過認真說，店內冷氣真的有點弱，夏天吃完肯定整頭大汗；而且中午 12 點排隊人潮超長，強烈建議大家避開尖峰時段，大約下午 1 點半左右再去吃最舒服！⚠️ 🚇 捷運象山站 2 號出口步行約 6 分鐘。',
-    tags: ['#在地情報', '#景點避坑指南', '#捷運美食', '#台北探訪'],
-    likes: 64,
+    timeText: '昨天',
+    timestamp: Date.now() - 86400000,
+    image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=800&h=800&q=80',
+    content: '趁放晴去爬象山，下山順道繞來吃這家老字號牛肉麵啦！🍜 紅燒湯頭醇厚、牛肉燉得相當軟嫩，價格非常實在喔。不過老實說，店裡冷氣真的不太給力，夏天中午來肯定會滿頭大汗；而且正中午排隊超長，強烈建議大家避開尖峰時段，約莫下午 1 點半左右來最舒服！⚠️ 🚇 捷運象山站 2 號出口步行 6 分鐘。',
+    tags: ['#資訊分享', '#景點探店', '#避坑指南', '#在地美食'],
+    likes: 62,
     isLiked: false,
     isSaved: false,
     comments: [
-      { user: '週末山友', text: '真的！這家一定要避開中午，上次排了半小時熱暈了，但麵確實好吃。' }
+      { user: 'taipei_eats', text: '這家避坑情報很實用，筆記起來！' }
     ]
   }
 ];
 
-// 本地暫存上傳照片的 Base64
-let uploadedPhotoBase64 = '';
+let localUploadedPhoto = '';
 
 document.addEventListener('DOMContentLoaded', () => {
   initStorage();
+  renderProfileStats();
   renderFeed();
-  initPostInteractions();
+  initInteractions();
   initCreateModal();
 });
 
 /**
- * 初始化 localStorage 資料
+ * 初始化 localStorage
  */
 function initStorage() {
   try {
@@ -90,13 +88,12 @@ function initStorage() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_POSTS));
     }
   } catch (error) {
-    console.warn('無法存取 localStorage：', error);
+    console.warn('無法讀取 localStorage：', error);
   }
 }
 
 /**
- * 取得貼文列表 (依時間倒序排列)
- * @returns {Array}
+ * 取得貼文資料陣列 (依時間倒序)
  */
 function getPosts() {
   try {
@@ -106,25 +103,42 @@ function getPosts() {
       return Array.isArray(posts) ? posts.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)) : [];
     }
   } catch (error) {
-    console.error('解析貼文資料錯誤：', error);
+    console.error('解析貼文失敗：', error);
   }
   return [];
 }
 
 /**
- * 儲存貼文列表至 localStorage
- * @param {Array} posts 
+ * 儲存貼文陣列
  */
 function savePosts(posts) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+    renderProfileStats();
   } catch (error) {
-    console.error('儲存至 localStorage 失敗：', error);
+    console.error('儲存貼文失敗：', error);
   }
 }
 
 /**
- * 渲染動態牆 (Feed)
+ * 更新個人 Profile 統計數值
+ */
+function renderProfileStats() {
+  const posts = getPosts();
+  const totalPostsEl = document.getElementById('totalPostsCount');
+  const totalLikesEl = document.getElementById('totalLikesCount');
+
+  if (totalPostsEl) {
+    totalPostsEl.textContent = posts.length;
+  }
+  if (totalLikesEl) {
+    const sumLikes = posts.reduce((sum, p) => sum + (p.likes || 0), 0);
+    totalLikesEl.textContent = sumLikes;
+  }
+}
+
+/**
+ * 渲染動態牆
  */
 function renderFeed() {
   const container = document.getElementById('feedContainer');
@@ -133,76 +147,60 @@ function renderFeed() {
   const posts = getPosts();
   container.innerHTML = '';
 
-  // 若無任何卡片，呈現空狀態提示
   if (posts.length === 0) {
     const template = document.getElementById('emptyStateTemplate');
     if (template) {
       const clone = template.content.cloneNode(true);
       const btn = clone.querySelector('#emptyCreateBtn');
-      if (btn) {
-        btn.addEventListener('click', openCreateModal);
-      }
+      if (btn) btn.addEventListener('click', openCreateModal);
       container.appendChild(clone);
     }
     return;
   }
 
-  // 渲染所有卡片
   posts.forEach(post => {
     container.appendChild(createPostCardElement(post));
   });
 }
 
 /**
- * 建立單一貼文卡片 DOM 元素
- * @param {Object} post 
- * @returns {HTMLElement}
+ * 產生單張符合 Instagram 8 大規格的貼文卡片
  */
-  // 主題樣式識別類別 (對應 PANTONE 色系)
-  let topicClass = 'topic-diary';
-  if (post.topic === '專業知識分享') topicClass = 'topic-knowledge';
-  else if (post.topic === '資訊分享') topicClass = 'topic-travel';
-
-  article.className = `post-card ig-post-card ${topicClass}-card`;
+function createPostCardElement(post) {
+  const article = document.createElement('article');
+  article.className = 'post-card';
   article.setAttribute('data-post-id', post.id);
 
+  // 主題樣式 class 映射
+  let topicClass = 'topic-diary';
+  if (post.topic === '專業知識分享') topicClass = 'topic-knowledge';
+  if (post.topic === '資訊分享') topicClass = 'topic-travel';
+
   const tagsHTML = (post.tags || [])
-    .map(tag => `<a href="javascript:void(0)" class="tag">${escapeHTML(tag)}</a>`)
-    .join('\n');
+    .map(tag => `<a href="javascript:void(0)" class="tag-link">${escapeHTML(tag)}</a>`)
+    .join(' ');
 
   const commentsCount = (post.comments || []).length;
-  const commentsHTML = (post.comments || [])
-    .map(c => `
-      <div class="comment-item">
-        <strong class="comment-user">${escapeHTML(c.user)}</strong>
-        <span class="comment-text">${escapeHTML(c.text)}</span>
-      </div>
-    `).join('\n');
+  const recentComment = commentsCount > 0 ? post.comments[commentsCount - 1] : null;
 
   article.innerHTML = `
-    <!-- 1. Instagram 卡片標頭列 (Header) -->
-    <header class="post-header ig-header">
+    <!-- 1. Header (作者統一為當前個人帳號) -->
+    <header class="post-header">
       <div class="author-info">
-        <div class="avatar-wrapper ig-avatar-wrapper">
-          <img src="${escapeHTML(post.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80')}" alt="${escapeHTML(post.author)} 的頭像" class="avatar ig-avatar" loading="lazy">
+        <div class="avatar-wrapper">
+          <img src="${CURRENT_USER.avatar}" alt="個人頭像" class="card-avatar" loading="lazy">
         </div>
         <div class="author-meta">
           <div class="name-row">
-            <strong class="author-name">${escapeHTML(post.author)}</strong>
-            <span class="topic-tag-badge ${topicClass}">${escapeHTML(post.topic || '心得雜記')}</span>
+            <strong class="author-username">${CURRENT_USER.handle}</strong>
+            <span class="topic-pill ${topicClass}">• ${escapeHTML(post.topic)}</span>
           </div>
-          <div class="sub-meta">
-            <span class="location-tag">
-              <svg class="icon-inline" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
-              ${escapeHTML(post.location || '生活隨筆')}
-            </span>
+          <div class="location-row">
+            <span>${escapeHTML(post.location || '台北 • 日常紀錄')}</span>
           </div>
         </div>
       </div>
-      <button class="icon-btn more-btn" aria-label="更多選項" data-action="more">
+      <button class="icon-btn" aria-label="更多選項" data-action="more">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
           <circle cx="5" cy="12" r="2"></circle>
           <circle cx="12" cy="12" r="2"></circle>
@@ -211,10 +209,9 @@ function renderFeed() {
       </button>
     </header>
 
-    <!-- 2. Instagram 主視覺照片 (1:1 正方形黃金比例 & 雙擊大愛心) -->
-    <div class="post-media-container ig-media-container" data-action="double-tap-like">
-      <img src="${escapeHTML(post.image)}" alt="${escapeHTML(post.topic || '心得照片')}" class="post-image ig-post-image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1000&q=80'">
-      <span class="media-badge">${escapeHTML(post.mediaBadge || '✨ 心得紀錄')}</span>
+    <!-- 2. Media (主照片，1:1 正方形黃金比例) -->
+    <div class="post-media-container" data-action="double-tap-like">
+      <img src="${escapeHTML(post.image)}" alt="${escapeHTML(post.topic)}" class="post-image" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&h=800&q=80'">
       <div class="floating-heart" aria-hidden="true">
         <svg viewBox="0 0 24 24" width="76" height="76" fill="#ed4956">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -222,20 +219,20 @@ function renderFeed() {
       </div>
     </div>
 
-    <!-- 3. Instagram 互動動作列 (Like, Comment, Share, Save) -->
-    <div class="post-actions ig-actions">
+    <!-- 3. Action Bar (互動列：按讚、留言、紙飛機分享、書籤) -->
+    <div class="post-actions">
       <div class="actions-left">
-        <button class="action-btn like-btn ${post.isLiked ? 'liked' : ''}" aria-label="按讚" data-action="like" data-liked="${post.isLiked ? 'true' : 'false'}">
-          <svg class="heart-icon" viewBox="0 0 24 24" width="24" height="24" fill="${post.isLiked ? '#ed4956' : 'none'}" stroke="${post.isLiked ? '#ed4956' : 'currentColor'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="action-icon-btn like-btn ${post.isLiked ? 'liked' : ''}" aria-label="按讚" data-action="like" data-liked="${post.isLiked ? 'true' : 'false'}">
+          <svg class="heart-icon" viewBox="0 0 24 24" width="24" height="24" fill="${post.isLiked ? '#ed4956' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
           </svg>
         </button>
-        <button class="action-btn comment-btn" aria-label="留言" data-action="focus-comment">
+        <button class="action-icon-btn" aria-label="留言" data-action="focus-comment">
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
           </svg>
         </button>
-        <button class="action-btn share-btn" aria-label="分享這則心得" data-action="share">
+        <button class="action-icon-btn" aria-label="紙飛機分享" data-action="share">
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"></line>
             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -243,46 +240,45 @@ function renderFeed() {
         </button>
       </div>
       <div class="actions-right">
-        <button class="action-btn bookmark-btn ${post.isSaved ? 'saved' : ''}" aria-label="收藏心得" data-action="bookmark" data-saved="${post.isSaved ? 'true' : 'false'}">
-          <svg class="bookmark-icon" viewBox="0 0 24 24" width="24" height="24" fill="${post.isSaved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button class="action-icon-btn bookmark-btn ${post.isSaved ? 'saved' : ''}" aria-label="收藏" data-action="bookmark" data-saved="${post.isSaved ? 'true' : 'false'}">
+          <svg class="bookmark-icon" viewBox="0 0 24 24" width="24" height="24" fill="${post.isSaved ? '#262626' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
           </svg>
         </button>
       </div>
     </div>
 
-    <!-- 4. Instagram 按讚統計列 -->
-    <div class="ig-likes-section">
-      <strong class="likes-counter-text">${post.likes || 0} 個讚</strong>
+    <!-- 4. Metrics (讚數) -->
+    <div class="post-metrics">
+      <span class="like-counter">${post.likes || 0}</span> 個讚
     </div>
 
-    <!-- 5. Instagram 正文首行與內文排版 -->
-    <div class="post-content ig-post-content">
-      <div class="ig-caption-row">
-        <strong class="author-name-inline">${escapeHTML(post.handle || post.author)}</strong>
-        <span class="caption-body">${escapeHTML(post.content)}</span>
-      </div>
-      <div class="post-tags">
-        ${tagsHTML}
-      </div>
-
-      <!-- 6. 留言展示與發布時間戳記 -->
-      <div class="comments-section ig-comments-section">
-        ${commentsCount > 0 ? `<div class="ig-view-comments" data-action="focus-comment">查看全部 ${commentsCount} 則留言</div>` : ''}
-        <div class="comments-list">
-          ${commentsHTML}
-        </div>
-        <time class="ig-timestamp">${escapeHTML(post.timeText || '剛剛')}</time>
-      </div>
+    <!-- 5. Caption (正文：username + 內文) -->
+    <div class="post-caption-block">
+      <span class="caption-username">${CURRENT_USER.handle}</span>
+      <span class="caption-text">${escapeHTML(post.content)}</span>
+      <div class="post-tags">${tagsHTML}</div>
     </div>
 
-    <!-- 7. Instagram 底部快速留言列 -->
-    <footer class="post-footer ig-post-footer">
-      <form class="ig-comment-form" data-form="comment">
-        <button type="button" class="ig-emoji-btn" aria-label="加入表情符號" data-action="insert-emoji">😊</button>
-        <input type="text" class="comment-input ig-comment-input" placeholder="新增留言..." required aria-label="輸入留言">
-        <button type="submit" class="btn-send-comment ig-btn-post" aria-label="發布留言">發佈</button>
-      </form>
+    <!-- 6. Comments & Timestamp (精選留言與時間戳記) -->
+    <div class="post-comments-summary">
+      ${commentsCount > 1 ? `<button type="button" class="btn-view-comments">查看全部 ${commentsCount} 則留言</button>` : ''}
+      <div class="recent-comments-list">
+        ${recentComment ? `
+          <div class="comment-row">
+            <strong class="comment-user">${escapeHTML(recentComment.user)}</strong>
+            <span class="comment-text">${escapeHTML(recentComment.text)}</span>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+    <time class="post-timestamp">${escapeHTML(post.timeText || '剛剛')}</time>
+
+    <!-- 7. Add Comment Bar (IG 經典留言框) -->
+    <footer class="post-add-comment-bar">
+      <button type="button" class="emoji-btn" aria-label="表情符號">😊</button>
+      <input type="text" class="comment-quick-input" placeholder="新增留言..." aria-label="新增留言">
+      <button type="button" class="btn-publish-comment" data-action="send-comment">發佈</button>
     </footer>
   `;
 
@@ -290,52 +286,52 @@ function renderFeed() {
 }
 
 /**
- * 初始化動態牆互動事件 (採用事件委派)
+ * 初始化動態牆全域委派事件
  */
-function initPostInteractions() {
+function initInteractions() {
   const feed = document.getElementById('feedContainer');
   if (!feed) return;
 
-  // 1. 點擊事件 (點讚、收藏、分享、聚焦留言、更多)
+  // 1. 點擊委派
   feed.addEventListener('click', (e) => {
-    // 點讚
+    // 點讚按鈕
     const likeBtn = e.target.closest('[data-action="like"]');
     if (likeBtn) {
       handleLikeToggle(likeBtn);
       return;
     }
 
-    // 收藏
+    // 收藏書籤按鈕
     const bookmarkBtn = e.target.closest('[data-action="bookmark"]');
     if (bookmarkBtn) {
       handleBookmarkToggle(bookmarkBtn);
       return;
     }
 
-    // 分享
+    // 分享紙飛機
     const shareBtn = e.target.closest('[data-action="share"]');
     if (shareBtn) {
       handleShareAction();
       return;
     }
 
-    // 聚焦留言框
+    // 聚焦留言
     const commentBtn = e.target.closest('[data-action="focus-comment"]');
     if (commentBtn) {
       const card = commentBtn.closest('.post-card');
-      const input = card ? card.querySelector('.comment-input') : null;
+      const input = card ? card.querySelector('.comment-quick-input') : null;
       if (input) input.focus();
       return;
     }
 
-    // 表情符號捷徑點選
-    const emojiBtn = e.target.closest('[data-action="insert-emoji"]');
-    if (emojiBtn) {
-      const card = emojiBtn.closest('.post-card');
-      const input = card ? card.querySelector('.comment-input') : null;
-      if (input) {
-        input.value = (input.value ? input.value + ' ' : '') + '❤️';
-        input.focus();
+    // 發布留言按鈕
+    const sendCommentBtn = e.target.closest('[data-action="send-comment"]');
+    if (sendCommentBtn) {
+      const card = sendCommentBtn.closest('.post-card');
+      const input = card ? card.querySelector('.comment-quick-input') : null;
+      if (input && input.value.trim()) {
+        submitComment(card, input.value.trim());
+        input.value = '';
       }
       return;
     }
@@ -343,12 +339,26 @@ function initPostInteractions() {
     // 更多選項
     const moreBtn = e.target.closest('[data-action="more"]');
     if (moreBtn) {
-      showToast('貼文連結已就緒');
+      showToast('IG 貼文設定選單已就緒');
       return;
     }
   });
 
-  // 2. 雙擊照片爆發大愛心並按讚
+  // 2. 留言輸入框 Enter 送出
+  feed.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.classList.contains('comment-quick-input')) {
+      const text = e.target.value.trim();
+      if (text) {
+        const card = e.target.closest('.post-card');
+        if (card) {
+          submitComment(card, text);
+          e.target.value = '';
+        }
+      }
+    }
+  });
+
+  // 3. 雙擊照片爆發大愛心
   feed.addEventListener('dblclick', (e) => {
     const mediaContainer = e.target.closest('[data-action="double-tap-like"]');
     if (mediaContainer) {
@@ -362,54 +372,29 @@ function initPostInteractions() {
       }
     }
   });
-
-  // 3. 留言表單送出
-  feed.addEventListener('submit', (e) => {
-    const commentForm = e.target.closest('[data-form="comment"]');
-    if (commentForm) {
-      e.preventDefault();
-      handleCommentSubmit(commentForm);
-    }
-  });
 }
 
 /**
- * 處理按讚切換與持久化
- * @param {HTMLElement} btn 
+ * 處理按讚
  */
 function handleLikeToggle(btn) {
   const card = btn.closest('.post-card');
   if (!card) return;
   const postId = card.getAttribute('data-post-id');
-  const counter = btn.querySelector('.like-counter');
-  const likesText = card.querySelector('.likes-counter-text');
-
-  let count = 0;
-  if (likesText) {
-    count = parseInt(likesText.textContent, 10) || 0;
-  } else if (counter) {
-    count = parseInt(counter.textContent, 10) || 0;
-  }
-
+  const counter = card.querySelector('.like-counter');
+  let count = parseInt(counter.textContent, 10) || 0;
   const isLiked = btn.getAttribute('data-liked') === 'true';
+
   const newLiked = !isLiked;
   const newCount = newLiked ? count + 1 : Math.max(0, count - 1);
 
   btn.setAttribute('data-liked', newLiked ? 'true' : 'false');
   btn.classList.toggle('liked', newLiked);
+  counter.textContent = newCount;
 
-  if (likesText) {
-    likesText.textContent = `${newCount} 個讚`;
-  }
-  if (counter) {
-    counter.textContent = newCount;
-  }
-
-  // 更新 SVG 填色
   const icon = btn.querySelector('.heart-icon');
   if (icon) {
     icon.setAttribute('fill', newLiked ? '#ed4956' : 'none');
-    icon.setAttribute('stroke', newLiked ? '#ed4956' : 'currentColor');
   }
 
   // 同步至 localStorage
@@ -423,21 +408,18 @@ function handleLikeToggle(btn) {
 }
 
 /**
- * 雙擊照片浮現大愛心動畫
- * @param {HTMLElement} mediaContainer 
+ * 雙擊照片爆發愛心特效
  */
 function triggerHeartAnimation(mediaContainer) {
   const heart = mediaContainer.querySelector('.floating-heart');
   if (!heart) return;
-
   heart.classList.remove('active');
-  void heart.offsetWidth; // 強制重繪
+  void heart.offsetWidth;
   heart.classList.add('active');
 }
 
 /**
- * 處理書籤收藏切換與持久化
- * @param {HTMLElement} btn 
+ * 處理收藏切換
  */
 function handleBookmarkToggle(btn) {
   const card = btn.closest('.post-card');
@@ -451,10 +433,10 @@ function handleBookmarkToggle(btn) {
 
   const icon = btn.querySelector('.bookmark-icon');
   if (icon) {
-    icon.setAttribute('fill', newSaved ? 'currentColor' : 'none');
+    icon.setAttribute('fill', newSaved ? '#262626' : 'none');
   }
 
-  showToast(newSaved ? '已加入個人收藏' : '已自收藏清單移除');
+  showToast(newSaved ? '已收藏此篇筆記' : '已從收藏清單移除');
 
   const posts = getPosts();
   const post = posts.find(p => p.id === postId);
@@ -465,72 +447,47 @@ function handleBookmarkToggle(btn) {
 }
 
 /**
- * 分享功能：複製連結並跳出 Toast
+ * 分享連結
  */
 function handleShareAction() {
   if (navigator.clipboard && window.location.href) {
     navigator.clipboard.writeText(window.location.href)
-      .then(() => showToast('心得連結已複製到剪貼簿！'))
-      .catch(() => showToast('已為您準備分享連結'));
+      .then(() => showToast('IG 筆記連結已複製到剪貼簿！'))
+      .catch(() => showToast('已為您準備好分享連結'));
   } else {
-    showToast('已為您準備分享連結');
+    showToast('已為您準備好分享連結');
   }
 }
 
 /**
- * 處理新增留言與持久化
- * @param {HTMLFormElement} form 
+ * 提交留言
  */
-function handleCommentSubmit(form) {
-  const input = form.querySelector('.comment-input');
-  const text = input.value.trim();
-  if (!text) return;
-
-  const card = form.closest('.post-card');
-  if (!card) return;
+function submitComment(card, text) {
   const postId = card.getAttribute('data-post-id');
-  const targetList = card.querySelector('.comments-list') || card.querySelector('.comments-section');
-  const commentCounter = card.querySelector('.comment-counter');
-  const viewComments = card.querySelector('.ig-view-comments');
+  const list = card.querySelector('.recent-comments-list');
+  if (!list) return;
 
-  const newComment = { user: '我', text: text };
-
-  // DOM 插入
-  const item = document.createElement('div');
-  item.className = 'comment-item';
-  item.innerHTML = `
+  const commentRow = document.createElement('div');
+  commentRow.className = 'comment-row';
+  commentRow.innerHTML = `
     <strong class="comment-user">我</strong>
     <span class="comment-text">${escapeHTML(text)}</span>
   `;
-  if (targetList) {
-    targetList.appendChild(item);
-  }
+  list.appendChild(commentRow);
 
-  // 計數器更新
-  const totalComments = card.querySelectorAll('.comment-item').length;
-  if (commentCounter) {
-    commentCounter.textContent = totalComments;
-  }
-  if (viewComments) {
-    viewComments.textContent = `查看全部 ${totalComments} 則留言`;
-  }
+  showToast('留言已發佈');
 
-  input.value = '';
-  showToast('回應發布成功');
-
-  // 同步至 localStorage
   const posts = getPosts();
   const post = posts.find(p => p.id === postId);
   if (post) {
     if (!post.comments) post.comments = [];
-    post.comments.push(newComment);
+    post.comments.push({ user: '我', text: text });
     savePosts(posts);
   }
 }
 
 /**
- * 顯示輕量 Toast 提示
- * @param {string} message 
+ * 輕量 Toast 提示
  */
 function showToast(message) {
   const container = document.getElementById('toastContainer');
@@ -541,32 +498,25 @@ function showToast(message) {
   toast.textContent = message;
 
   container.appendChild(toast);
-
-  setTimeout(() => {
-    toast.remove();
-  }, 2500);
+  setTimeout(() => toast.remove(), 2400);
 }
 
 /**
- * 轉義 HTML 預防 XSS
- * @param {string} str 
- * @returns {string}
+ * 轉義 HTML 防範 XSS
  */
 function escapeHTML(str) {
   if (typeof str !== 'string') return '';
-  return str.replace(/[&<>'"]/g, 
-    tag => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      "'": '&#39;',
-      '"': '&quot;'
-    }[tag] || tag)
-  );
+  return str.replace(/[&<>'"]/g, tag => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;'
+  }[tag] || tag));
 }
 
 /**
- * 開啟新增心得彈窗
+ * 彈窗開啟與關閉
  */
 function openCreateModal() {
   const modal = document.getElementById('createModal');
@@ -575,13 +525,10 @@ function openCreateModal() {
   modal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
-  const contentInput = document.getElementById('contentTextInput');
-  if (contentInput) contentInput.focus();
+  const textInput = document.getElementById('contentTextInput');
+  if (textInput) textInput.focus();
 }
 
-/**
- * 關閉新增心得彈窗
- */
 function closeCreateModal() {
   const modal = document.getElementById('createModal');
   if (!modal) return;
@@ -591,7 +538,7 @@ function closeCreateModal() {
 }
 
 /**
- * 初始化「新增圖文心得」彈窗與完整流程 (UX 規範實作)
+ * 初始化懶人新增彈窗
  */
 function initCreateModal() {
   const modal = document.getElementById('createModal');
@@ -599,15 +546,13 @@ function initCreateModal() {
   const closeBtn = document.getElementById('closeCreateModalBtn');
   const cancelBtn = document.getElementById('cancelPostBtn');
   const form = document.getElementById('newPostForm');
-  const formatRulesBtn = document.getElementById('formatRulesBtn');
+  const formatBtn = document.getElementById('formatRulesBtn');
 
-  // 照片切換分頁
   const tabPresetBtn = document.getElementById('tabPresetBtn');
   const tabUploadBtn = document.getElementById('tabUploadBtn');
-  const presetPanel = document.getElementById('presetPhotoSection');
-  const uploadPanel = document.getElementById('uploadPhotoSection');
+  const presetSection = document.getElementById('presetPhotoSection');
+  const uploadSection = document.getElementById('uploadPhotoSection');
 
-  // 本地上傳控制
   const dropzone = document.getElementById('uploadDropzone');
   const fileInput = document.getElementById('localFileInput');
   const promptBox = document.getElementById('dropzonePrompt');
@@ -619,7 +564,6 @@ function initCreateModal() {
   if (closeBtn) closeBtn.addEventListener('click', closeCreateModal);
   if (cancelBtn) cancelBtn.addEventListener('click', closeCreateModal);
 
-  // 點擊背景空白處或按 ESC 關閉
   if (modal) {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeCreateModal();
@@ -632,29 +576,27 @@ function initCreateModal() {
     }
   });
 
-  // 照片 Tab 切換
-  if (tabPresetBtn && tabUploadBtn && presetPanel && uploadPanel) {
+  // 照片分頁切換
+  if (tabPresetBtn && tabUploadBtn && presetSection && uploadSection) {
     tabPresetBtn.addEventListener('click', () => {
       tabPresetBtn.classList.add('active');
       tabUploadBtn.classList.remove('active');
-      presetPanel.classList.add('active');
-      uploadPanel.classList.remove('active');
+      presetSection.classList.add('active');
+      uploadSection.classList.remove('active');
     });
 
     tabUploadBtn.addEventListener('click', () => {
       tabUploadBtn.classList.add('active');
       tabPresetBtn.classList.remove('active');
-      uploadPanel.classList.add('active');
-      presetPanel.classList.remove('active');
+      uploadSection.classList.add('active');
+      presetSection.classList.remove('active');
     });
   }
 
-  // 本地照片上傳與預覽 (FileReader)
+  // 本地照片上傳 (FileReader)
   if (dropzone && fileInput && promptBox && previewBox && previewImg) {
     dropzone.addEventListener('click', (e) => {
-      if (e.target !== removePhotoBtn) {
-        fileInput.click();
-      }
+      if (e.target !== removePhotoBtn) fileInput.click();
     });
 
     fileInput.addEventListener('change', (e) => {
@@ -663,11 +605,11 @@ function initCreateModal() {
 
       const reader = new FileReader();
       reader.onload = (evt) => {
-        uploadedPhotoBase64 = evt.target.result;
-        previewImg.src = uploadedPhotoBase64;
+        localUploadedPhoto = evt.target.result;
+        previewImg.src = localUploadedPhoto;
         promptBox.style.display = 'none';
         previewBox.style.display = 'flex';
-        showToast('照片載入完成');
+        showToast('照片已就緒，自動對齊 IG 1:1');
       };
       reader.readAsDataURL(file);
     });
@@ -675,89 +617,81 @@ function initCreateModal() {
     if (removePhotoBtn) {
       removePhotoBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        uploadedPhotoBase64 = '';
+        localUploadedPhoto = '';
         fileInput.value = '';
         previewImg.src = '';
         previewBox.style.display = 'none';
         promptBox.style.display = 'flex';
-        showToast('已移除上傳照片');
+        showToast('已取消上傳照片');
       });
     }
   }
 
-  // 步驟四：依 Rules 風格自動潤飾排版 (微軟正黑體、中英數留半形空格、全形標點、去除浮誇詞彙)
-  if (formatRulesBtn) {
-    formatRulesBtn.addEventListener('click', () => {
+  // 一鍵沉穩排版潤飾 (中英空格、全形標點、去除浮誇宣傳詞)
+  if (formatBtn) {
+    formatBtn.addEventListener('click', () => {
       const textarea = document.getElementById('contentTextInput');
       if (!textarea) return;
       let text = textarea.value;
       if (!text.trim()) {
-        showToast('請先輸入簡短想法再進行潤飾');
+        showToast('請先輸入簡短內容');
         return;
       }
 
-      // 1. 中英/數字混排自動加入半形空格
+      // 中英數半形空格
       text = text.replace(/([\u4e00-\u9fa5])([A-Za-z0-9])/g, '$1 $2');
       text = text.replace(/([A-Za-z0-9])([\u4e00-\u9fa5])/g, '$1 $2');
 
-      // 2. 標點轉換為標準全形標點
+      // 全形標點
       text = text.replace(/,/g, '，')
                  .replace(/:/g, '：')
                  .replace(/;/g, '；')
                  .replace(/!/g, '！')
                  .replace(/\?/g, '？');
 
-      // 3. 沉穩低調原則：微量替換或過濾浮誇宣傳字眼
-      text = text.replace(/地表最強|革命性突破|極致優雅|無可挑剔/g, '扎實可靠');
+      // 沉穩低調去除浮誇詞
+      text = text.replace(/地表最強|革命性突破|必吃神店|史詩級體驗|極致優雅|無可挑剔/g, '扎實可靠');
 
       textarea.value = text;
-      showToast('已完成沉穩排版風格潤飾');
+      showToast('已依沉穩規範完成排版');
     });
   }
 
-  // 表單送出：完成並發布卡片 (步驟六：製成卡片與持久化)
+  // 表單提交：產生全新個人 IG 貼文卡片
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const author = document.getElementById('authorNameInput').value.trim() || '生活觀察家';
-      const location = document.getElementById('locationInput').value.trim() || '日常隨筆';
       const content = document.getElementById('contentTextInput').value.trim();
+      const location = document.getElementById('locationInput').value.trim() || '日常角落';
       const tagsRaw = document.getElementById('tagsInput').value.trim();
       const customUrl = document.getElementById('customImageUrlInput').value.trim();
 
-      // 主題選擇 (三選一)
       const topicRadio = document.querySelector('input[name="postTopic"]:checked');
       const topic = topicRadio ? topicRadio.value : '心得雜記';
 
-      // 圖片選取判定 (優先使用上傳圖檔，次之自訂網址，再次為精選推薦)
       let finalImage = '';
-      if (tabUploadBtn && tabUploadBtn.classList.contains('active') && uploadedPhotoBase64) {
-        finalImage = uploadedPhotoBase64;
+      if (tabUploadBtn && tabUploadBtn.classList.contains('active') && localUploadedPhoto) {
+        finalImage = localUploadedPhoto;
       } else if (customUrl) {
         finalImage = customUrl;
       } else {
         const checkedPreset = document.querySelector('input[name="presetImg"]:checked');
-        finalImage = checkedPreset ? checkedPreset.value : 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=1000&q=80';
+        finalImage = checkedPreset ? checkedPreset.value : 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80';
       }
 
       if (!content) return;
 
-      // 解析標籤
       const tags = tagsRaw.split(/[\s,]+/)
         .filter(t => t.length > 0)
         .map(t => t.startsWith('#') ? t : `#${t}`);
 
       const newPost = {
         id: `post-${Date.now()}`,
-        author: author,
-        handle: `@${author.replace(/\s+/g, '_').toLowerCase()}`,
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80',
         topic: topic,
         location: location,
         timeText: '剛剛',
         timestamp: Date.now(),
-        mediaBadge: `✨ ${topic}`,
         image: finalImage,
         content: content,
         tags: tags,
@@ -767,27 +701,23 @@ function initCreateModal() {
         comments: []
       };
 
-      // 儲存至 localStorage 首位
-      const currentPosts = getPosts();
-      currentPosts.unshift(newPost);
-      savePosts(currentPosts);
+      const posts = getPosts();
+      posts.unshift(newPost);
+      savePosts(posts);
 
-      // 重新渲染並置頂
       renderFeed();
 
-      // 清除表單與上傳狀態
       form.reset();
-      uploadedPhotoBase64 = '';
+      localUploadedPhoto = '';
       if (fileInput) fileInput.value = '';
       if (previewBox) previewBox.style.display = 'none';
       if (promptBox) promptBox.style.display = 'flex';
-      if (tabPresetBtn && tabUploadBtn && presetPanel && uploadPanel) {
+      if (tabPresetBtn && tabUploadBtn && presetSection && uploadSection) {
         tabPresetBtn.click();
       }
 
       closeCreateModal();
-      showToast('🎉 心得卡片已發布並妥善存檔！');
-
+      showToast('🎉 已歸檔至個人 IG 筆記牆！');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }

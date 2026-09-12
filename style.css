@@ -1,47 +1,50 @@
 /* ==========================================================================
-   全域變數與重設樣式 (Global Tokens & Resets)
-   遵循 .agents/rules/development-guidelines.md 規範
+   全域變數與 PANTONE 莫蘭迪色彩體系
+   遵循 .agents/rules/docs-writing.md 與 development-guidelines.md 規範
    ========================================================================== */
 :root {
   --font-family-base: "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  /* PANTONE 莫蘭迪柔和色系 (規範定義) */
-  --color-lemon-icing: #f6e7b9;
-  --color-nimbus-cloud: #d5d6d8;
-  --color-raindrops-roses: #e8ced5;
-  --color-cloud-dancer: #f0eee9;
-  --color-ice-melt: #c8dce8;
-  --color-peach-dust: #e8c9bc;
-  --color-almost-aqua: #cad6c5;
-  --color-orchid-tint: #d7d0db;
+  /* 8 組官方 PANTONE 莫蘭迪柔和色 */
+  --color-lemon-icing: #f6e7b9;       /* 檸檬淡黃 (PANTONE 11-0515) */
+  --color-nimbus-cloud: #d5d6d8;      /* 雲霧灰 (PANTONE 13-4108) */
+  --color-raindrops-roses: #e8ced5;   /* 玫瑰雨滴柔粉 (PANTONE 11-1400) */
+  --color-cloud-dancer: #f0eee9;      /* 雲舞白底色 (PANTONE 11-4201) */
+  --color-ice-melt: #c8dce8;          /* 融冰淡水藍 (PANTONE 13-4306) */
+  --color-peach-dust: #e8c9bc;        /* 蜜桃粉杏 (PANTONE 12-1107) */
+  --color-almost-aqua: #cad6c5;       /* 薄霧水綠 (PANTONE 13-6006) */
+  --color-orchid-tint: #d7d0db;       /* 淡蘭紫霧 (PANTONE 13-3802) */
 
-  /* 主題背景與介面層級 */
+  /* 介面與排版基礎色 */
   --bg-page: var(--color-cloud-dancer);
   --bg-card: #ffffff;
-  --border-color: var(--color-nimbus-cloud);
-  --border-subtle: #f0f1f3;
+  --border-card: var(--color-nimbus-cloud);
+  --border-light: #ecefe9;
 
-  /* 文字階層 (Instagram 色階) */
-  --text-primary: #262626;
-  --text-secondary: #737373;
-  --text-muted: #8e8e8e;
-  --text-link: #00376b;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-muted: #8e959f;
+  --text-link: #0095f6;               /* IG 經典藍色連結 */
 
-  --brand-primary: #0095f6;
-  --brand-primary-hover: #1877f2;
-  --like-color: #ed4956;
-  --bookmark-color: #262626;
+  --ig-red: #ed4956;                  /* IG 經典紅色愛心 */
+  --ig-bookmark: #262626;
 
-  /* Instagram 卡片幾何與圓角 */
-  --radius-card: 8px;
+  /* 三大主題對應莫蘭迪色 */
+  --theme-knowledge-bg: var(--color-ice-melt);
+  --theme-knowledge-text: #1e3a8a;
+  --theme-diary-bg: var(--color-orchid-tint);
+  --theme-diary-text: #4c1d95;
+  --theme-travel-bg: var(--color-peach-dust);
+  --theme-travel-text: #7c2d12;
+
+  --radius-card: 14px;
   --radius-sm: 6px;
   --radius-full: 9999px;
 
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.2);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.15);
 
-  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-bounce: 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -67,15 +70,15 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-color);
-  padding: 0.85rem 1.5rem;
+  border-bottom: 1px solid var(--border-card);
+  padding: 0.75rem 1.5rem;
 }
 
 .header-inner {
-  max-width: 680px;
+  max-width: 600px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -85,55 +88,165 @@ body {
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .brand-icon {
-  font-size: 1.6rem;
-  line-height: 1;
+  font-size: 1.5rem;
 }
 
 .brand-title {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.01em;
 }
 
 .brand-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  font-weight: 400;
 }
 
 /* ==========================================================================
-   按鈕系統 (Button System)
+   個人 Profile 簡介列 (Single User Persona)
+   ========================================================================== */
+.profile-summary-section {
+  max-width: 580px;
+  margin: 1.25rem auto 0;
+  padding: 0 1rem;
+}
+
+.profile-card {
+  background-color: #ffffff;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border-card);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  box-shadow: var(--shadow-card);
+}
+
+.profile-avatar-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 2px var(--color-raindrops-roses);
+  display: block;
+}
+
+.story-ring-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  background-color: #10b981;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+}
+
+.profile-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.profile-username {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  background-color: var(--text-link);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 900;
+  border-radius: 50%;
+}
+
+.profile-status-pill {
+  font-size: 0.72rem;
+  background-color: var(--color-lemon-icing);
+  color: #78350f;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+}
+
+.profile-bio {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.profile-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.stat-number {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   按鈕系統
    ========================================================================== */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  padding: 0.55rem 1.1rem;
+  padding: 0.45rem 1rem;
   border-radius: var(--radius-full);
   border: 1px solid transparent;
   cursor: pointer;
   transition: all var(--transition-fast);
-  outline: none;
 }
 
 .btn-primary {
-  background-color: var(--brand-primary);
+  background-color: #0095f6;
   color: #ffffff;
 }
 
 .btn-primary:hover {
-  background-color: var(--brand-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+  background-color: #1877f2;
 }
 
 .btn-secondary {
@@ -150,7 +263,7 @@ body {
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0.4rem;
+  padding: 0.35rem;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -168,68 +281,62 @@ body {
    ========================================================================== */
 .feed-container {
   max-width: 580px;
-  margin: 1.75rem auto 3.5rem;
+  margin: 1.25rem auto 3.5rem;
   padding: 0 1rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.75rem;
 }
 
 /* ==========================================================================
    空狀態提示 (Empty State)
    ========================================================================== */
 .empty-state {
-  background-color: var(--bg-card);
+  background-color: #ffffff;
   border-radius: var(--radius-card);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-card);
   padding: 3.5rem 2rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
   box-shadow: var(--shadow-card);
 }
 
 .empty-icon {
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
+  font-size: 2.8rem;
 }
 
 .empty-title {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .empty-desc {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   color: var(--text-secondary);
-  max-width: 360px;
+  max-width: 380px;
   line-height: 1.6;
 }
 
 /* ==========================================================================
-   社群圖文心得卡片 (Post Card)
+   Instagram 經典規格貼文卡片 (IG Post Card)
    ========================================================================== */
 .post-card {
-  background-color: var(--bg-card);
+  background-color: #ffffff;
   border-radius: var(--radius-card);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-card);
   box-shadow: var(--shadow-card);
   overflow: hidden;
-  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
-  animation: cardFadeIn 0.45s ease-out;
-}
-
-.post-card:hover {
-  box-shadow: var(--shadow-hover);
+  animation: cardFadeIn 0.4s ease-out;
 }
 
 @keyframes cardFadeIn {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -237,14 +344,12 @@ body {
   }
 }
 
-/* ==========================================================================
-   Instagram 卡片標頭列 (Header)
-   ========================================================================== */
-.post-header.ig-header {
+/* 1. Header (發文者標頭) */
+.post-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.85rem 1rem 0.75rem;
+  padding: 0.85rem 1rem;
 }
 
 .author-info {
@@ -253,27 +358,23 @@ body {
   gap: 0.75rem;
 }
 
-.avatar-wrapper.ig-avatar-wrapper {
+.avatar-wrapper {
   position: relative;
-  padding: 2px;
-  border-radius: 50%;
-  background: linear-gradient(45deg, var(--color-peach-dust), var(--color-raindrops-roses), var(--color-orchid-tint));
 }
 
-.avatar.ig-avatar {
-  width: 38px;
-  height: 38px;
+.card-avatar {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ffffff;
+  border: 1.5px solid var(--color-nimbus-cloud);
   display: block;
-  background-color: var(--color-cloud-dancer);
 }
 
 .author-meta {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.15rem;
 }
 
 .name-row {
@@ -282,97 +383,64 @@ body {
   gap: 0.45rem;
 }
 
-.author-name {
-  font-size: 0.88rem;
-  font-weight: 700;
+.author-username {
+  font-size: 0.92rem;
+  font-weight: 600;
   color: var(--text-primary);
-  line-height: 1.2;
 }
 
-/* PANTONE 莫蘭迪主題標籤 (依主題映射) */
-.topic-tag-badge {
-  font-size: 0.7rem;
+/* 莫蘭迪主題 Badge 標籤 */
+.topic-pill {
+  font-size: 0.72rem;
   font-weight: 600;
-  padding: 0.12rem 0.5rem;
+  padding: 0.15rem 0.55rem;
   border-radius: var(--radius-full);
 }
 
-.topic-tag-badge.topic-knowledge {
-  background-color: var(--color-ice-melt);
-  color: #1e3a8a;
-  border: 1px solid #bfdbfe;
+.topic-pill.topic-knowledge {
+  background-color: var(--theme-knowledge-bg);
+  color: var(--theme-knowledge-text);
 }
 
-.topic-tag-badge.topic-diary {
-  background-color: var(--color-orchid-tint);
-  color: #581c87;
-  border: 1px solid #e9d5ff;
+.topic-pill.topic-diary {
+  background-color: var(--theme-diary-bg);
+  color: var(--theme-diary-text);
 }
 
-.topic-tag-badge.topic-travel {
-  background-color: var(--color-peach-dust);
-  color: #9a3412;
-  border: 1px solid #fed7aa;
+.topic-pill.topic-travel {
+  background-color: var(--theme-travel-bg);
+  color: var(--theme-travel-text);
 }
 
-.sub-meta {
+.location-row {
   display: flex;
   align-items: center;
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   color: var(--text-secondary);
-  gap: 0.35rem;
+  gap: 0.25rem;
 }
 
-.location-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.2rem;
-  color: var(--text-secondary);
-}
-
-.icon-inline {
-  display: inline-block;
-  vertical-align: middle;
-}
-
-/* ==========================================================================
-   Instagram 主視覺照片 (1:1 正方形黃金比例 & 雙擊大愛心)
-   ========================================================================== */
-.post-media-container.ig-media-container {
+/* 2. Media (主視覺照片，嚴格 Instagram 1:1 正方形黃金比例) */
+.post-media-container {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
-  background-color: var(--color-cloud-dancer);
+  background-color: #f3f4f6;
   cursor: pointer;
   user-select: none;
   overflow: hidden;
 }
 
-.post-image.ig-post-image {
+.post-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.4s ease;
+  transition: transform 0.35s ease;
 }
 
 .post-media-container:hover .post-image {
   transform: scale(1.015);
-}
-
-.media-badge {
-  position: absolute;
-  top: 0.85rem;
-  left: 0.85rem;
-  background: rgba(23, 23, 23, 0.68);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #ffffff;
-  font-size: 0.74rem;
-  font-weight: 600;
-  padding: 0.25rem 0.65rem;
-  border-radius: var(--radius-full);
-  pointer-events: none;
 }
 
 .floating-heart {
@@ -383,36 +451,22 @@ body {
   opacity: 0;
   pointer-events: none;
   transition: all var(--transition-bounce);
-  filter: drop-shadow(0 4px 12px rgba(237, 73, 86, 0.4));
+  filter: drop-shadow(0 4px 16px rgba(237, 73, 86, 0.45));
 }
 
 .floating-heart.active {
-  animation: heartPopEffect 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: heartPopEffect 0.75s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 @keyframes heartPopEffect {
-  0% {
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
-  }
-  35% {
-    transform: translate(-50%, -50%) scale(1.25);
-    opacity: 1;
-  }
-  60% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.95;
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1.4);
-    opacity: 0;
-  }
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  35% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+  65% { transform: translate(-50%, -50%) scale(1); opacity: 0.95; }
+  100% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
 }
 
-/* ==========================================================================
-   Instagram 互動工具列 (Like, Comment, Share, Save)
-   ========================================================================== */
-.post-actions.ig-actions {
+/* 3. Action Bar (互動工具列) */
+.post-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -423,38 +477,33 @@ body {
 .actions-right {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 1rem;
 }
 
-.action-btn {
+.action-icon-btn {
   background: none;
   border: none;
+  cursor: pointer;
+  padding: 0.2rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: var(--text-primary);
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: var(--radius-sm);
   transition: transform var(--transition-fast), color var(--transition-fast);
 }
 
-.action-btn:hover {
+.action-icon-btn:hover {
   transform: scale(1.1);
-  color: var(--text-secondary);
+  color: #737373;
 }
 
-.action-btn:active {
-  transform: scale(0.92);
+.action-icon-btn.liked {
+  color: var(--ig-red);
 }
 
-.like-btn.liked {
-  color: var(--like-color);
-}
-
-.like-btn.liked .heart-icon {
-  fill: var(--like-color);
-  stroke: var(--like-color);
+.action-icon-btn.liked .heart-icon {
+  fill: var(--ig-red);
+  stroke: var(--ig-red);
   animation: heartPulse var(--transition-bounce);
 }
 
@@ -464,208 +513,159 @@ body {
   100% { transform: scale(1); }
 }
 
-.bookmark-btn.saved {
-  color: var(--bookmark-color);
-}
-
-.bookmark-btn.saved .bookmark-icon {
-  fill: var(--bookmark-color);
-  stroke: var(--bookmark-color);
+.action-icon-btn.saved .bookmark-icon {
+  fill: var(--ig-bookmark);
+  stroke: var(--ig-bookmark);
   animation: heartPulse var(--transition-bounce);
 }
 
-/* ==========================================================================
-   Instagram 按讚統計列 (Likes)
-   ========================================================================== */
-.ig-likes-section {
-  padding: 0 1rem 0.35rem;
-}
-
-.likes-counter-text {
+/* 4. Metrics (讚數列) */
+.post-metrics {
+  padding: 0 1rem;
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-primary);
+  margin-bottom: 0.35rem;
 }
 
-/* ==========================================================================
-   Instagram 正文首行與內文排版 (Caption & Tags)
-   ========================================================================== */
-.post-content.ig-post-content {
-  padding: 0.15rem 1rem 0.85rem;
-}
-
-.ig-caption-row {
-  font-size: 0.88rem;
-  line-height: 1.5;
+/* 5. Caption (內文排版：username + 內文) */
+.post-caption-block {
+  padding: 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.65;
   color: var(--text-primary);
   word-break: break-word;
 }
 
-.author-name-inline {
-  font-weight: 700;
+.caption-username {
+  font-weight: 600;
+  margin-right: 0.45rem;
   color: var(--text-primary);
-  margin-right: 0.4rem;
-}
-
-.caption-body {
-  color: var(--text-primary);
-  white-space: pre-line;
 }
 
 .post-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.45rem;
   margin-top: 0.45rem;
 }
 
-.tag {
-  color: var(--text-link);
+.tag-link {
+  color: #00376b;
   font-size: 0.84rem;
   font-weight: 500;
   text-decoration: none;
-  transition: opacity var(--transition-fast);
 }
 
-.tag:hover {
+.tag-link:hover {
   text-decoration: underline;
-  opacity: 0.85;
 }
 
-/* ==========================================================================
-   Instagram 留言區與時間戳記 (Comments & Timestamp)
-   ========================================================================== */
-.comments-section.ig-comments-section {
-  margin-top: 0.45rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.85rem;
+/* 6. Comments & Timestamp (精選留言與時間) */
+.post-comments-summary {
+  padding: 0.45rem 1rem 0.25rem;
 }
 
-.ig-view-comments {
-  color: var(--text-muted);
+.btn-view-comments {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
   font-size: 0.82rem;
+  color: var(--text-muted);
   cursor: pointer;
-  user-select: none;
-  transition: color var(--transition-fast);
+  margin-bottom: 0.35rem;
+  display: block;
 }
 
-.ig-view-comments:hover {
-  color: var(--text-secondary);
-}
-
-.comments-list {
+.recent-comments-list {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  font-size: 0.86rem;
 }
 
-.comment-item {
+.comment-row {
   display: flex;
   align-items: baseline;
-  gap: 0.4rem;
+  gap: 0.45rem;
   line-height: 1.45;
-  animation: commentFadeIn 0.3s ease-out;
-}
-
-@keyframes commentFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .comment-user {
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-primary);
   flex-shrink: 0;
 }
 
 .comment-text {
-  color: var(--text-primary);
-  word-break: break-word;
+  color: var(--text-secondary);
 }
 
-.ig-timestamp {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-top: 0.35rem;
+.post-timestamp {
   display: block;
+  padding: 0.35rem 1rem 0.75rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-/* ==========================================================================
-   Instagram 底部留言輸入列 (Footer Comment Bar)
-   ========================================================================== */
-.post-footer.ig-post-footer {
-  padding: 0.65rem 1rem 0.75rem;
-  border-top: 1px solid var(--border-subtle);
-  background-color: #ffffff;
-}
-
-.ig-comment-form {
+/* 7. Add Comment Bar (IG 經典底部留言輸入列) */
+.post-add-comment-bar {
+  border-top: 1px solid var(--border-light);
+  padding: 0.65rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.65rem;
 }
 
-.ig-emoji-btn {
+.emoji-btn {
   background: none;
   border: none;
   font-size: 1.15rem;
   cursor: pointer;
+  padding: 0;
   line-height: 1;
-  padding: 0.1rem;
-  transition: transform var(--transition-fast);
 }
 
-.ig-emoji-btn:hover {
-  transform: scale(1.15);
-}
-
-.comment-input.ig-comment-input {
+.comment-quick-input {
   flex: 1;
   border: none;
-  background: none;
+  outline: none;
   font-family: inherit;
   font-size: 0.86rem;
-  outline: none;
   color: var(--text-primary);
+  background: none;
 }
 
-.comment-input.ig-comment-input::placeholder {
+.comment-quick-input::placeholder {
   color: var(--text-muted);
 }
 
-.btn-send-comment.ig-btn-post {
+.btn-publish-comment {
   border: none;
   background: none;
-  color: var(--brand-primary);
   font-family: inherit;
   font-size: 0.86rem;
-  font-weight: 700;
+  font-weight: 600;
+  color: var(--text-link);
   cursor: pointer;
-  padding: 0.2rem 0.4rem;
+  opacity: 0.5;
   transition: opacity var(--transition-fast);
 }
 
-.btn-send-comment.ig-btn-post:hover {
-  opacity: 0.8;
+.comment-quick-input:not(:placeholder-shown) + .btn-publish-comment {
+  opacity: 1;
 }
 
 /* ==========================================================================
-   彈出視窗與 UX 流程表單 (Modal & Form Styles)
+   彈出視窗與表單 (Modal Dialog - PANTONE 莫蘭迪質感)
    ========================================================================== */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(17, 24, 39, 0.6);
+  background-color: rgba(17, 24, 39, 0.55);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   display: flex;
@@ -686,7 +686,7 @@ body {
 .modal-content {
   background-color: #ffffff;
   width: 100%;
-  max-width: 540px;
+  max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
   border-radius: var(--radius-card);
@@ -703,37 +703,36 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem 1rem;
-  border-bottom: 1px solid var(--border-color);
+  padding: 1.15rem 1.4rem 0.9rem;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .modal-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: var(--text-primary);
 }
 
 .modal-form {
-  padding: 1.25rem 1.5rem 1.5rem;
+  padding: 1.25rem 1.4rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
+  gap: 1.1rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.4rem;
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.85rem;
+  gap: 0.75rem;
 }
 
 .form-label {
-  font-size: 0.88rem;
+  font-size: 0.86rem;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -742,25 +741,24 @@ body {
 .form-group input[type="url"],
 .form-group textarea {
   font-family: inherit;
-  font-size: 0.92rem;
-  padding: 0.65rem 0.85rem;
-  border: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border-card);
   border-radius: var(--radius-sm);
   outline: none;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color var(--transition-fast);
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: var(--brand-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #0095f6;
 }
 
-/* 主題三選一格線卡片 (UX 規範) */
+/* 主題三選一 (莫蘭迪色卡片) */
 .topic-options-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.6rem;
+  gap: 0.55rem;
 }
 
 .topic-card {
@@ -775,60 +773,47 @@ body {
 }
 
 .topic-box {
-  border: 1.5px solid var(--border-color);
+  border: 1.5px solid var(--border-light);
   border-radius: var(--radius-sm);
-  padding: 0.75rem 0.5rem;
+  padding: 0.75rem 0.45rem;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.25rem;
-  background-color: #fafbfc;
+  gap: 0.2rem;
+  background-color: #fafafa;
   transition: all var(--transition-fast);
   height: 100%;
 }
 
 .topic-box strong {
-  font-size: 0.85rem;
-  color: var(--text-primary);
+  font-size: 0.84rem;
 }
 
 .topic-box small {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   line-height: 1.3;
 }
 
-.topic-icon {
-  font-size: 1.35rem;
-  margin-bottom: 0.1rem;
-}
-
-.topic-card:has(input[type="radio"]:checked) .topic-box {
-  border-color: var(--brand-primary);
-  background-color: #eff6ff;
-  box-shadow: 0 0 0 1px var(--brand-primary);
-}
-
-.topic-card:has(input[value="專業知識分享"]:checked) .topic-box {
+.topic-card.topic-knowledge:has(input[type="radio"]:checked) .topic-box {
   background-color: var(--color-ice-melt);
   border-color: #93c5fd;
-  box-shadow: 0 0 0 1px #93c5fd;
+  box-shadow: 0 0 0 1px #60a5fa;
 }
 
-.topic-card:has(input[value="心得雜記"]:checked) .topic-box {
+.topic-card.topic-diary:has(input[type="radio"]:checked) .topic-box {
   background-color: var(--color-orchid-tint);
   border-color: #d8b4fe;
-  box-shadow: 0 0 0 1px #d8b4fe;
+  box-shadow: 0 0 0 1px #c084fc;
 }
 
-.topic-card:has(input[value="資訊分享"]:checked) .topic-box {
+.topic-card.topic-travel:has(input[type="radio"]:checked) .topic-box {
   background-color: var(--color-peach-dust);
   border-color: #fdba74;
-  box-shadow: 0 0 0 1px #fdba74;
+  box-shadow: 0 0 0 1px #fb923c;
 }
 
-/* 小短文排版潤飾按鈕 */
 .content-assistant-row {
   display: flex;
   align-items: center;
@@ -839,12 +824,10 @@ body {
 .btn-text-action {
   background: none;
   border: none;
-  color: var(--brand-primary);
-  font-size: 0.82rem;
+  color: var(--text-link);
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 0.2rem 0;
-  transition: opacity var(--transition-fast);
 }
 
 .btn-text-action:hover {
@@ -852,35 +835,32 @@ body {
 }
 
 .text-hint {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
 }
 
-/* 照片分頁按鈕 */
 .photo-method-tabs {
   display: flex;
   gap: 0.5rem;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.5rem;
-  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 0.45rem;
 }
 
 .tab-btn {
   background: none;
   border: none;
   font-family: inherit;
-  font-size: 0.86rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0.35rem 0.75rem;
+  padding: 0.3rem 0.65rem;
   border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
 }
 
 .tab-btn.active {
-  background-color: #eff6ff;
-  color: var(--brand-primary);
+  background-color: var(--color-almost-aqua);
+  color: #1e3a2b;
 }
 
 .photo-tab-panel {
@@ -894,7 +874,8 @@ body {
 .preset-images-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.6rem;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .preset-option {
@@ -903,13 +884,11 @@ body {
   border-radius: var(--radius-sm);
   overflow: hidden;
   border: 2px solid transparent;
-  transition: all var(--transition-fast);
 }
 
 .preset-option input[type="radio"] {
   position: absolute;
   opacity: 0;
-  pointer-events: none;
 }
 
 .preset-option img {
@@ -919,31 +898,35 @@ body {
   display: block;
 }
 
+.preset-option .img-hint {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.65);
+  color: #ffffff;
+  font-size: 0.62rem;
+  text-align: center;
+  padding: 0.15rem 0;
+}
+
 .preset-option:has(input[type="radio"]:checked) {
-  border-color: var(--brand-primary);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
-  transform: scale(0.96);
+  border-color: #0095f6;
+  box-shadow: 0 0 0 2px rgba(0, 149, 246, 0.4);
 }
 
-.form-input-sub {
-  margin-top: 0.5rem;
-  width: 100%;
-}
-
-/* 自行上傳照片拖曳區 */
 .upload-dropzone {
-  border: 2px dashed var(--border-color);
+  border: 2px dashed var(--border-card);
   border-radius: var(--radius-sm);
   padding: 1.5rem 1rem;
   text-align: center;
-  background-color: #fafbfc;
+  background-color: #fafafa;
   cursor: pointer;
-  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+  margin-top: 0.5rem;
 }
 
 .upload-dropzone:hover {
-  border-color: var(--brand-primary);
-  background-color: #eff6ff;
+  border-color: #0095f6;
 }
 
 .file-input-hidden {
@@ -954,66 +937,42 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
-}
-
-.upload-icon {
-  font-size: 2rem;
-  margin-bottom: 0.2rem;
-}
-
-.dropzone-prompt p {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.dropzone-prompt small {
-  font-size: 0.78rem;
-  color: var(--text-muted);
+  gap: 0.25rem;
 }
 
 .upload-preview-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .upload-preview-img {
-  max-width: 100%;
-  max-height: 220px;
+  width: 120px;
+  height: 120px;
   border-radius: var(--radius-sm);
   object-fit: cover;
-  border: 1px solid var(--border-color);
 }
 
 .btn-remove-photo {
   background: none;
-  border: 1px solid #ef4444;
-  color: #ef4444;
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--ig-red);
+  color: var(--ig-red);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-remove-photo:hover {
-  background-color: #fef2f2;
 }
 
 .modal-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
+  gap: 0.65rem;
 }
 
 /* ==========================================================================
-   輕量 Toast 提示訊息 (Toast Notification)
+   輕量 Toast
    ========================================================================== */
 .toast-container {
   position: fixed;
@@ -1023,100 +982,73 @@ body {
   z-index: 2000;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.45rem;
   pointer-events: none;
 }
 
 .toast-item {
-  background-color: rgba(17, 24, 39, 0.92);
+  background-color: rgba(23, 23, 23, 0.92);
   color: #ffffff;
-  padding: 0.65rem 1.25rem;
+  padding: 0.55rem 1.15rem;
   border-radius: var(--radius-full);
-  font-size: 0.88rem;
-  font-weight: 500;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  font-size: 0.86rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   animation: toastFadeIn 0.3s ease-out, toastFadeOut 0.3s ease-in 2.2s forwards;
 }
 
 @keyframes toastFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes toastFadeOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-8px); }
 }
 
 /* ==========================================================================
-   響應式設計 (Responsive Styles)
+   RWD 手機端微調
    ========================================================================== */
 @media (max-width: 600px) {
-  .app-header {
-    padding: 0.75rem 1rem;
-  }
-
-  .brand-title {
-    font-size: 1.05rem;
+  .header-inner {
+    padding: 0;
   }
 
   .brand-subtitle {
     display: none;
   }
 
-  .btn {
-    padding: 0.45rem 0.85rem;
-    font-size: 0.82rem;
+  .profile-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.1rem 1rem;
+    gap: 0.85rem;
+  }
+
+  .profile-name-row {
+    justify-content: center;
+  }
+
+  .profile-stats {
+    justify-content: center;
   }
 
   .feed-container {
-    margin-top: 1rem;
-    padding: 0 0.5rem;
+    padding: 0 0.25rem;
     gap: 1.25rem;
   }
 
   .post-card {
-    border-radius: 12px;
-  }
-
-  .post-header {
-    padding: 0.85rem 1rem;
-  }
-
-  .post-media-container .post-image {
-    max-height: 380px;
-    min-height: 220px;
-  }
-
-  .post-actions {
-    padding: 0.75rem 1rem 0.4rem;
-  }
-
-  .post-content {
-    padding: 0.25rem 1rem 0.85rem;
-  }
-
-  .post-footer {
-    padding: 0.65rem 1rem 0.85rem;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
 
   .topic-options-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
     grid-template-columns: 1fr;
   }
 
