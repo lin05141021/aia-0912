@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>我的 IG 生活筆記牆 | 懶人隨筆自動歸檔</title>
   <!-- 採用相對路徑與快取清除版本號，確保即時載入最新 PANTONE 莫蘭迪樣式 -->
-  <link rel="stylesheet" href="./style.css?v=20260912-v5-clean">
+  <link rel="stylesheet" href="./style.css?v=20260912-v6-token-guard">
 </head>
 <body>
   <!-- 頁面頂部導航 -->
@@ -173,10 +173,29 @@
 
           <!-- AI 動態生圖區 -->
           <div id="aiPhotoSection" class="photo-tab-panel active">
-            <div class="ai-visual-card">
+            <!-- 每日 Token / 額度防護監控列 -->
+            <div class="token-guard-bar" id="tokenGuardBar">
+              <div class="token-guard-info">
+                <span class="token-icon">⚡</span>
+                <span class="token-label">今日 AI 免費用量：<strong id="tokenUsageCount">0 / 15</strong> 次</span>
+                <button type="button" class="btn-token-reset" id="btnResetTokenQuota" title="重設今日測試額度">重設</button>
+              </div>
+              <span class="token-status-badge status-ok" id="tokenStatusBadge">額度充足</span>
+            </div>
+
+            <!-- 超額熔斷暫停警告提示 -->
+            <div class="token-exceeded-alert" id="tokenExceededAlert" style="display: none;">
+              <span class="alert-icon">🛑</span>
+              <div class="alert-body">
+                <strong>已達今日免費用量上限，AI 生圖功能已暫停使用</strong>
+                <p>已為您自動防護停止調用。請改用「📸 自行上傳照片」或直接貼上圖片網址。</p>
+              </div>
+            </div>
+
+            <div class="ai-visual-card" id="aiVisualCard">
               <div class="ai-visual-header">
                 <div class="ai-status-row">
-                  <span class="pulse-indicator"></span>
+                  <span class="pulse-indicator" id="aiPulseIndicator"></span>
                   <span id="aiStatusText">AI 視覺就緒：依文章內容關鍵字自動生成 1:1 配圖</span>
                 </div>
                 <button type="button" class="btn-clean-action" id="btnAiRegenerate">
@@ -260,6 +279,6 @@
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- 載入核心邏輯 (加入版本號防快取) -->
-  <script src="./app.js?v=20260912-v5-clean" defer></script>
+  <script src="./app.js?v=20260912-v6-token-guard" defer></script>
 </body>
 </html>

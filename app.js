@@ -13,6 +13,123 @@ const CURRENT_USER = {
   bio: '生活觀察與技術閱讀雜記。不需要長篇大論，隨手幾句話、一張照片，讓懶散也能自然沉澱出專屬的生活足跡。'
 };
 
+/**
+ * 每日 Token / 額度防護機制 (Token Guard & Rate Limiting)
+ * 嚴格監控每日免費 AI 生圖呼叫次數，達到或接近上限時及時預警並自動熔斷暫停，避免超出用量或耗盡資源。
+ */
+const TOKEN_GUARD_KEY = 'aia_ai_daily_token_quota';
+const DAILY_FREE_LIMIT = 15;
+
+const TokenGuard = {
+  getTodayString() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  },
+
+  getQuota() {
+    const today = this.getTodayString();
+    try {
+      const data = JSON.parse(localStorage.getItem(TOKEN_GUARD_KEY));
+      if (data && data.date === today) {
+        return data;
+      }
+    } catch (e) {
+      console.warn('讀取 Token 額度失敗，重設為預設值', e);
+    }
+    const fresh = { date: today, limit: DAILY_FREE_LIMIT, used: 0 };
+    this.saveQuota(fresh);
+    return fresh;
+  },
+
+  saveQuota(quota) {
+    try {
+      localStorage.setItem(TOKEN_GUARD_KEY, JSON.stringify(quota));
+    } catch (e) {
+      console.warn('寫入 Token 額度失敗', e);
+    }
+  },
+
+  canGenerate() {
+    const quota = this.getQuota();
+    return quota.used < quota.limit;
+  },
+
+  consume() {
+    const quota = this.getQuota();
+    if (quota.used < quota.limit) {
+      quota.used += 1;
+      this.saveQuota(quota);
+    }
+    this.updateUI();
+    return quota;
+  },
+
+  reset() {
+    const today = this.getTodayString();
+    const fresh = { date: today, limit: DAILY_FREE_LIMIT, used: 0 };
+    this.saveQuota(fresh);
+    this.updateUI();
+    return fresh;
+  },
+
+  updateUI() {
+    const quota = this.getQuota();
+    const usageCountEl = document.getElementById('tokenUsageCount');
+    const badgeEl = document.getElementById('tokenStatusBadge');
+    const alertEl = document.getElementById('tokenExceededAlert');
+    const regenBtn = document.getElementById('btnAiRegenerate');
+    const cardEl = document.getElementById('aiVisualCard');
+    const pulseEl = document.getElementById('aiPulseIndicator');
+
+    if (usageCountEl) {
+      usageCountEl.textContent = `${quota.used} / ${quota.limit}`;
+    }
+
+    const remaining = quota.limit - quota.used;
+
+    if (quota.used >= quota.limit) {
+      // 熔斷暫停狀態
+      if (badgeEl) {
+        badgeEl.textContent = '暫停使用 (已達上限)';
+        badgeEl.className = 'token-status-badge status-depleted';
+      }
+      if (alertEl) alertEl.style.display = 'flex';
+      if (regenBtn) {
+        regenBtn.disabled = true;
+        regenBtn.title = '今日 AI 免費額度已耗盡，請改用手動上傳照片';
+      }
+      if (cardEl) cardEl.classList.add('quota-depleted');
+      if (pulseEl) pulseEl.classList.add('paused');
+    } else if (remaining <= 3) {
+      // 接近額度警告狀態
+      if (badgeEl) {
+        badgeEl.textContent = `額度即將用盡 (剩 ${remaining} 次)`;
+        badgeEl.className = 'token-status-badge status-warning';
+      }
+      if (alertEl) alertEl.style.display = 'none';
+      if (regenBtn) {
+        regenBtn.disabled = false;
+        regenBtn.title = '依文章語意重新生成 AI 視覺配圖';
+      }
+      if (cardEl) cardEl.classList.remove('quota-depleted');
+      if (pulseEl) pulseEl.classList.remove('paused');
+    } else {
+      // 額度充足正常狀態
+      if (badgeEl) {
+        badgeEl.textContent = '額度充足';
+        badgeEl.className = 'token-status-badge status-ok';
+      }
+      if (alertEl) alertEl.style.display = 'none';
+      if (regenBtn) {
+        regenBtn.disabled = false;
+        regenBtn.title = '依文章語意重新生成 AI 視覺配圖';
+      }
+      if (cardEl) cardEl.classList.remove('quota-depleted');
+      if (pulseEl) pulseEl.classList.remove('paused');
+    }
+  }
+};
+
 // 預設三大主題之示範貼文 (初次載入或清空時載入)
 const DEFAULT_POSTS = [
   {
@@ -525,6 +642,9 @@ function openCreateModal() {
   modal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
+  // 每次開啟彈窗更新 Token 額度狀態
+  TokenGuard.updateUI();
+
   const briefInput = document.getElementById('briefInput');
   if (briefInput) briefInput.focus();
 }
@@ -622,9 +742,23 @@ function initCreateModal() {
     });
   }
 
+  // 綁定 Token 重設按鈕 (供測試與重置用)
+  const btnResetQuota = document.getElementById('btnResetTokenQuota');
+  if (btnResetQuota) {
+    btnResetQuota.addEventListener('click', () => {
+      TokenGuard.reset();
+      showToast('⚡ 今日 AI 額度已重設為 0 / 15 次');
+    });
+  }
+
   // 點擊「🔄 重新抽圖」按鈕
   if (btnAiRegenerate) {
     btnAiRegenerate.addEventListener('click', () => {
+      if (!TokenGuard.canGenerate()) {
+        showToast('⚠️ 今日 AI 免費額度已耗盡，已暫停生成');
+        TokenGuard.updateUI();
+        return;
+      }
       const topicRadio = document.querySelector('input[name="postTopic"]:checked');
       const topic = topicRadio ? topicRadio.value : '資訊分享';
       const content = document.getElementById('contentTextInput').value.trim();
@@ -959,11 +1093,69 @@ function renderRecommendedHashtags(tagsList) {
 }
 
 /**
- * 依文章內容語意與主題辨識，動態產生高質感 1:1 配圖 (AI Content-Aware Visual Generation)
+ * 多樣化高品質備用圖庫（當離線或需要即時預覽時隨機輪替，確保每次點擊重新抽圖皆呈現不同視覺）
+ */
+const AI_IMAGE_POOLS = {
+  burger: [
+    'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&h=800&q=80'
+  ],
+  coffee: [
+    'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=800&h=800&q=80'
+  ],
+  food: [
+    'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&h=800&q=80'
+  ],
+  nature: [
+    'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&h=800&q=80'
+  ],
+  tech: [
+    'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&h=800&q=80'
+  ],
+  book: [
+    'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=800&h=800&q=80'
+  ],
+  diary: [
+    'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1477959858617-67f30bc75b82?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=800&h=800&q=80',
+    'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&h=800&q=80'
+  ]
+};
+
+/**
+ * 依文章內容語意與主題辨識，動態產生高質感 1:1 配圖 (含 Token 防護與動態隨機 AI 生圖)
  * @param {string} topic 
  * @param {string} content 
  */
 function generateAiVisualFromContent(topic, content) {
+  // 1. 檢核 Token 防護機制
+  if (!TokenGuard.canGenerate()) {
+    TokenGuard.updateUI();
+    showToast('⚠️ 今日 AI 免費額度已達上限 (15/15)，已暫停生成');
+    // 自動為使用者切換至「自行上傳照片」分頁
+    const tabUploadBtn = document.getElementById('tabUploadBtn');
+    if (tabUploadBtn) tabUploadBtn.click();
+    return;
+  }
+
   const previewImg = document.getElementById('aiGeneratedPreviewImg');
   const badgeDisplay = document.getElementById('aiKeywordsDisplay');
   const mask = document.getElementById('aiGeneratingMask');
@@ -977,55 +1169,106 @@ function generateAiVisualFromContent(topic, content) {
   if (maskText) maskText.textContent = 'AI 正在深度辨識短文關鍵字與氛圍...';
   if (statusText) statusText.textContent = 'AI 運算中：分析文字語意並生成 1:1 配圖...';
 
+  // 消耗一次每日免費用量
+  const currentQuota = TokenGuard.consume();
+
   setTimeout(() => {
     const text = (content || '').toLowerCase();
-    let selectedImage = '';
+    const seed = Math.floor(Math.random() * 900000) + 100000;
+    let aiPrompt = '';
     let keywordTag = '';
+    let poolKey = 'diary';
 
     // 關鍵字語意識別庫 (嚴格依照 rules 生圖風格：自然光、沉穩低調、非網美)
     if (/fa\s*burger|漢堡|burger|牛胸|牛排|敦化|父親節/.test(text)) {
-      selectedImage = 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&h=800&q=80';
-      keywordTag = '#AI語意辨識 #FaBurger敦化店 #美式漢堡 #探店聚餐';
+      aiPrompt = 'artisan gourmet beef burger, smoked brisket, toasted bun, rustic wooden board, soft warm natural indoor lighting, cinematic depth of field, food photography, 8k, photorealistic';
+      keywordTag = `#AI語意辨識 #FaBurger敦化店 #美式漢堡 #第${currentQuota.used}次生成`;
+      poolKey = 'burger';
     } else if (/咖啡|拿鐵|手沖|耶加雪菲|烘焙|cafe|coffee/.test(text)) {
-      selectedImage = 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&h=800&q=80';
-      keywordTag = '#AI語意辨識 #手沖咖啡 #窗邊晨光 #溫潤日常';
+      aiPrompt = 'specialty pour over drip coffee in clear glass server, morning sun streaming through window, wooden table, steam rising, quiet minimalist cafe aesthetic, photorealistic, 8k';
+      keywordTag = `#AI語意辨識 #手沖咖啡 #晨光氛圍 #第${currentQuota.used}次生成`;
+      poolKey = 'coffee';
     } else if (/牛肉麵|拉麵|美食|排隊|好吃|小吃|湯頭|餐點|food|noodle|吃/.test(text)) {
-      selectedImage = 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&w=800&h=800&q=80';
-      keywordTag = '#AI語意辨識 #在地美食 #真實食記 #市井煙火';
+      aiPrompt = 'steaming bowl of traditional beef noodles, rich savory broth, fresh scallions, quiet cozy noodle shop atmosphere, natural lighting, photorealistic, 8k';
+      keywordTag = `#AI語意辨識 #道地美食 #街角小吃 #第${currentQuota.used}次生成`;
+      poolKey = 'food';
     } else if (/象山|步道|山|爬山|森林|自然|公園|散步|hiking|trail|樹/.test(text)) {
-      selectedImage = 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&h=800&q=80';
-      keywordTag = '#AI語意辨識 #山林步道 #自然微風 #踏青紀實';
+      aiPrompt = 'peaceful hiking trail surrounded by lush green trees, gentle dappled sunlight through foliage, quiet mountain path, realistic nature photography, 8k';
+      keywordTag = `#AI語意辨識 #綠意步道 #自然微風 #第${currentQuota.used}次生成`;
+      poolKey = 'nature';
     } else if (/代碼|程式|架構|重構|原生|javascript|css|html|git|bug|開發|dev|code/.test(text)) {
-      selectedImage = 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&h=800&q=80';
-      keywordTag = '#AI語意辨識 #冷灰工作桌 #代碼微光 #架構秩序';
+      aiPrompt = 'clean developer workspace, minimalist desk setup, mechanical keyboard, soft ambient desk lamp, clean code on high-res monitor, calm productivity, photorealistic';
+      keywordTag = `#AI語意辨識 #冷灰工作桌 #代碼微光 #第${currentQuota.used}次生成`;
+      poolKey = 'tech';
     } else if (/書|閱讀|金句|心得|學習|思考|反思|筆記|book|read/.test(text)) {
-      selectedImage = 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&h=800&q=80';
-      keywordTag = '#AI語意辨識 #書頁微光 #研讀筆記 #靜謐專注';
+      aiPrompt = 'open hardcover book resting on textured linen table, pair of reading glasses, soft golden hour sunlight, quiet introspective study atmosphere, photorealistic';
+      keywordTag = `#AI語意辨識 #書頁微光 #研讀筆記 #第${currentQuota.used}次生成`;
+      poolKey = 'book';
     } else if (/街|城市|建築|角落|生活|台北|巷弄|風景|walk|city/.test(text)) {
-      selectedImage = 'https://images.unsplash.com/photo-1477959858617-67f30bc75b82?auto=format&fit=crop&w=800&h=800&q=80';
-      keywordTag = '#AI語意辨識 #城市角落 #街景隨拍 #生活紀錄';
+      aiPrompt = 'quiet city alleyway in Taipei, calm afternoon light, peaceful urban street corner, understated candid travel photography, 8k';
+      keywordTag = `#AI語意辨識 #城市角落 #街景隨拍 #第${currentQuota.used}次生成`;
+      poolKey = 'diary';
     } else {
       // 依主題分流預設風格
       if (topic === '專業知識分享') {
-        selectedImage = 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&h=800&q=80';
-        keywordTag = '#AI語意辨識 #現代工作空間 #冷灰科技 #沉穩專注';
+        aiPrompt = 'minimalist contemporary workstation, clean aesthetic, cool gray tones, notebook and fountain pen, soft natural diffused light, photorealistic';
+        keywordTag = `#AI語意辨識 #冷灰科技 #專業筆記 #第${currentQuota.used}次生成`;
+        poolKey = 'tech';
       } else if (topic === '資訊分享') {
-        selectedImage = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&h=800&q=80';
-        keywordTag = '#AI語意辨識 #旅途實拍 #自然光影 #探訪紀實';
+        aiPrompt = 'scenic travel discovery, peaceful street view, warm sunlight, authentic local atmosphere, documentary travel photo, 8k';
+        keywordTag = `#AI語意辨識 #探訪紀實 #自然光影 #第${currentQuota.used}次生成`;
+        poolKey = 'nature';
       } else {
-        selectedImage = 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&h=800&q=80';
-        keywordTag = '#AI語意辨識 #手札日常 #生活微光 #沉靜思考';
+        aiPrompt = 'quiet journal notebook, steaming warm mug, wooden desk by window, cozy serene afternoon, peaceful contemplation, photorealistic';
+        keywordTag = `#AI語意辨識 #生活隨筆 #靜謐時光 #第${currentQuota.used}次生成`;
+        poolKey = 'diary';
       }
     }
 
-    previewImg.src = selectedImage;
-    badgeDisplay.textContent = keywordTag;
-    hiddenUrlInput.value = selectedImage;
+    // 呼叫動態 AI 生圖 API (Pollinations.ai 動態 Prompt + 隨機 Seed)
+    const dynamicAiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(aiPrompt)}?width=800&height=800&seed=${seed}&nologo=true`;
 
-    mask.style.display = 'none';
-    if (statusText) statusText.textContent = '已依文章內容完成 AI 視覺生成 (1:1 比例)';
-    showToast('✨ AI 已依短文關鍵字完成動態配圖！');
-  }, 450);
+    // 備用隨機圖庫 (萬一外部生圖 API 離線或逾時時之平順降級)
+    const pool = AI_IMAGE_POOLS[poolKey] || AI_IMAGE_POOLS.diary;
+    const fallbackUrl = pool[Math.floor(Math.random() * pool.length)];
+
+    // 建立新 Image 物件預載，成功後再切換
+    const tempImg = new Image();
+    let isLoaded = false;
+
+    tempImg.onload = () => {
+      isLoaded = true;
+      previewImg.src = dynamicAiUrl;
+      badgeDisplay.textContent = keywordTag;
+      hiddenUrlInput.value = dynamicAiUrl;
+      mask.style.display = 'none';
+      if (statusText) statusText.textContent = `已完成全新動態 AI 視覺生成 (1:1 比例 • 種子: ${seed})`;
+      showToast(`✨ 全新動態配圖已生成！今日用量：${currentQuota.used} / ${currentQuota.limit}`);
+    };
+
+    tempImg.onerror = () => {
+      // 若動態生圖服務連線受阻，使用不同隨機種子的高品質圖庫輪替
+      previewImg.src = fallbackUrl;
+      badgeDisplay.textContent = `${keywordTag} (精選配圖)`;
+      hiddenUrlInput.value = fallbackUrl;
+      mask.style.display = 'none';
+      if (statusText) statusText.textContent = '已依文章關鍵字切換高質感配圖 (1:1 比例)';
+      showToast(`✨ 配圖已更新！今日用量：${currentQuota.used} / ${currentQuota.limit}`);
+    };
+
+    // 啟動載入，若 6 秒內未完成則自動降級顯示備用圖
+    tempImg.src = dynamicAiUrl;
+    setTimeout(() => {
+      if (!isLoaded && mask.style.display !== 'none') {
+        previewImg.src = fallbackUrl;
+        badgeDisplay.textContent = `${keywordTag} (精選配圖)`;
+        hiddenUrlInput.value = fallbackUrl;
+        mask.style.display = 'none';
+        if (statusText) statusText.textContent = '已完成配圖更新 (1:1 比例)';
+      }
+    }, 6000);
+
+  }, 500);
 }
 
 
