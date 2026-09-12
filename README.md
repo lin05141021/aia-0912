@@ -38,12 +38,15 @@
 aia-0912/
 ├── .agents/
 │   ├── rules/
-│   │   ├── docs-writing.md            # 文件撰寫與風格規範
+│   │   ├── docs-writing.md            # 文件撰寫、色彩與 IG 發文格式規範
 │   │   └── development-guidelines.md  # 專案開發規範
+│   ├── skills/
+│   │   └── google-maps-fetch/
+│   │       └── SKILL.md               # Google Maps 店家與景點資訊檢索技能
 │   └── workflows/
 │       └── ux-check.md                # 日記卡片新增 UX 流程檢核規範
 ├── index.html                         # 網頁主結構與進入點
-├── style.css                          # 樣式定義（預設採用微軟正黑體）
+├── style.css                          # 樣式定義（PANTONE 莫蘭迪色系 + 微軟正黑體）
 ├── app.js                             # 核心邏輯與互動行為
 └── README.md                          # 專案說明文件
 ```
@@ -76,10 +79,15 @@ aia-0912/
 
 ---
 
-## 開發規範
+## 規範與自訂技能
 
-本專案遵循以下規範文件：
+本專案遵循 Antigravity 客製化體系，各檔案職責分工如下：
 
-- [docs-writing.md](.agents/rules/docs-writing.md)：文件撰寫、排版、中英混排與語調規範。
-- [development-guidelines.md](.agents/rules/development-guidelines.md)：前端架構、HTML/CSS/JS 程式碼撰寫與 Git 提交流程規範。
+- **Rules (約束準則)**：
+  - [docs-writing.md](.agents/rules/docs-writing.md)：文風語調、PANTONE 色彩體系與 Instagram 卡片標準格式。
+  - [development-guidelines.md](.agents/rules/development-guidelines.md)：前端純原生架構、程式碼撰寫與 Git 提交流程規範。
+- **Skills (專屬技能)**：
+  - [google-maps-fetch/SKILL.md](.agents/skills/google-maps-fetch/SKILL.md)：Google Maps 店家與景點資訊讀取、交通與營業時間結構化解析。
+- **Workflows (流程 SOP)**：
+  - [ux-check.md](.agents/workflows/ux-check.md)：日記卡片新增標準 UX 流程與品質檢核清單。
 
