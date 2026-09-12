@@ -35,11 +35,12 @@
 aia-0912/
 ├── .agents/
 │   └── rules/
-│       └── docs-writing.md    # 文件撰寫與風格規範
-├── index.html                 # 網頁主結構與進入點
-├── style.css                  # 樣式定義（預設採用微軟正黑體）
-├── app.js                     # 核心邏輯與互動行為
-└── README.md                  # 專案說明文件
+│       ├── docs-writing.md            # 文件撰寫與風格規範
+│       └── development-guidelines.md  # 專案開發規範
+├── index.html                         # 網頁主結構與進入點
+├── style.css                          # 樣式定義（預設採用微軟正黑體）
+├── app.js                             # 核心邏輯與互動行為
+└── README.md                          # 專案說明文件
 ```
 
 ---
@@ -72,8 +73,8 @@ aia-0912/
 
 ## 開發規範
 
-本專案遵循 [.agents/rules/docs-writing.md](.agents/rules/docs-writing.md) 訂定之規範：
+本專案遵循以下規範文件：
 
-- 文件以繁體中文撰寫，中英數混排時保持一個半形空格。
-- 文風堅持沉穩、低調、務實，拒絕誇大不實的宣傳口吻。
-- 專案未特別指定字型時，優先使用「微軟正黑體」。
+- [docs-writing.md](.agents/rules/docs-writing.md)：文件撰寫、排版、中英混排與語調規範。
+- [development-guidelines.md](.agents/rules/development-guidelines.md)：前端架構、HTML/CSS/JS 程式碼撰寫與 Git 提交流程規範。
+
