@@ -525,8 +525,8 @@ function openCreateModal() {
   modal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
-  const textInput = document.getElementById('contentTextInput');
-  if (textInput) textInput.focus();
+  const briefInput = document.getElementById('briefInput');
+  if (briefInput) briefInput.focus();
 }
 
 function closeCreateModal() {
@@ -548,9 +548,10 @@ function initCreateModal() {
   const form = document.getElementById('newPostForm');
   const formatBtn = document.getElementById('formatRulesBtn');
 
-  const btnFillSample = document.getElementById('btnFillSample');
   const btnGenerate = document.getElementById('btnGenerateFromBrief');
   const briefInput = document.getElementById('briefInput');
+  const contentInput = document.getElementById('contentTextInput');
+  const charCount = document.getElementById('essayCharCount');
   const topicRadios = document.querySelectorAll('input[name="postTopic"]');
 
   const tabAiPhotoBtn = document.getElementById('tabAiPhotoBtn');
@@ -582,14 +583,10 @@ function initCreateModal() {
     }
   });
 
-  // 快捷帶入父親節美食範例
-  if (btnFillSample && briefInput) {
-    btnFillSample.addEventListener('click', () => {
-      briefInput.value = '以父親節為由 終於嘗試 非常推薦 https://maps.app.goo.gl/S8AajshsCyrtvqzY9';
-      const travelRadio = document.querySelector('input[name="postTopic"][value="資訊分享"]');
-      if (travelRadio) travelRadio.checked = true;
-      showToast('📋 已帶入父親節美食探訪簡要範例！');
-      briefInput.focus();
+  // 即時字數統計
+  if (contentInput && charCount) {
+    contentInput.addEventListener('input', () => {
+      charCount.textContent = contentInput.value.length > 0 ? `(${contentInput.value.length} 字)` : '';
     });
   }
 
@@ -600,18 +597,11 @@ function initCreateModal() {
     });
   });
 
-  // 點擊「✨ 讀取 Rules 風格生成小短文」
-  if (btnGenerate && briefInput) {
-    btnGenerate.addEventListener('click', () => {
-      const briefText = briefInput.value.trim();
-      if (!briefText) {
-        showToast('請先在步驟 2 輸入簡要重點或貼上連結');
-        briefInput.focus();
-        return;
-      }
-      const topicRadio = document.querySelector('input[name="postTopic"]:checked');
-      const topic = topicRadio ? topicRadio.value : '資訊分享';
-      handleGenerateFromBrief(topic, briefText);
+  // 綁定生成按鈕
+  if (btnGenerate) {
+    btnGenerate.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.triggerGenerateFromBrief();
     });
   }
 
@@ -632,7 +622,7 @@ function initCreateModal() {
     });
   }
 
-  // 點擊「🔄 依短文重抽配圖」按鈕
+  // 點擊「🔄 重新抽圖」按鈕
   if (btnAiRegenerate) {
     btnAiRegenerate.addEventListener('click', () => {
       const topicRadio = document.querySelector('input[name="postTopic"]:checked');
@@ -702,6 +692,7 @@ function initCreateModal() {
       text = text.replace(/地表最強|革命性突破|必吃神店|史詩級體驗|極致優雅|無可挑剔/g, '扎實可靠');
 
       textarea.value = text;
+      if (charCount) charCount.textContent = `(${text.length} 字)`;
       showToast('已依沉穩規範完成排版');
 
       // 同步更新配圖
@@ -786,6 +777,43 @@ function initCreateModal() {
 }
 
 /**
+ * 全域生成觸發器 (支援按鈕 inline onclick 與 JS 事件監聽雙重保障)
+ */
+window.triggerGenerateFromBrief = function() {
+  const briefInput = document.getElementById('briefInput');
+  const btnGenerate = document.getElementById('btnGenerateFromBrief');
+  const btnText = document.getElementById('btnGenerateText');
+  const briefText = briefInput ? briefInput.value.trim() : '';
+
+  if (!briefText) {
+    if (briefInput) {
+      briefInput.style.borderColor = '#ef4444';
+      briefInput.focus();
+      setTimeout(() => { briefInput.style.borderColor = ''; }, 2000);
+    }
+    showToast('⚠️ 請先輸入簡短想法或貼上地點連結喔！');
+    return;
+  }
+
+  const topicRadio = document.querySelector('input[name="postTopic"]:checked');
+  const topic = topicRadio ? topicRadio.value : '資訊分享';
+
+  // 按鈕視覺狀態
+  if (btnGenerate && btnText) {
+    btnGenerate.disabled = true;
+    btnText.textContent = '智慧分析與擴寫中...';
+  }
+
+  setTimeout(() => {
+    handleGenerateFromBrief(topic, briefText);
+    if (btnGenerate && btnText) {
+      btnGenerate.disabled = false;
+      btnText.textContent = '依 Rules 風格智慧生成小短文';
+    }
+  }, 250);
+};
+
+/**
  * 依簡要文字與選定主題，讀取 Rules 風格與 google-maps-fetch 生成小短文與推薦標籤
  * @param {string} topic 
  * @param {string} briefText 
@@ -793,7 +821,14 @@ function initCreateModal() {
 function handleGenerateFromBrief(topic, briefText) {
   const contentInput = document.getElementById('contentTextInput');
   const locationInput = document.getElementById('locationInput');
+  const charCount = document.getElementById('essayCharCount');
   if (!contentInput) return;
+
+  // 萃取使用者實際輸入之內容 (去除 URL 與 @ 帳號)
+  const cleanUserNotes = briefText
+    .replace(/https?:\/\/[^\s]+/g, '')
+    .replace(/@[\w_]+/g, '')
+    .trim();
 
   const isMapsUrl = /(maps\.app\.goo\.gl|goo\.gl\/maps|google\.com\/maps)/i.test(briefText);
   const isFaBurger = /S8AajshsCyrtvqzY9|fa\s*burger|敦化/i.test(briefText);
@@ -806,45 +841,65 @@ function handleGenerateFromBrief(topic, briefText) {
     // 依 google-maps-fetch 技能與 docs-writing 規範生成
     if (isFaBurger || /S8AajshsCyrtvqzY9/.test(briefText)) {
       detectedLocation = '台北 • 捷運忠孝敦化站';
-      generatedEssay = '以父親節為由，終於踏進口袋名單已久的 Fa Burger 敦化店啦！🍔 這次點了招牌牛胸肉與帶骨牛小排，肉量給得相當豪邁，燻烤香氣與濃郁肉汁真的很扎實，麵包外脆內軟很加分。不過老實說，店內座位數量確實不多，尖峰用餐時段常需要排隊等候，建議想來吃的朋友避開正中午尖峰時段喔！⚠️ 🚇 捷運忠孝敦化站 8 號出口步行約 5 分鐘。';
-      recommendedTags = ['#FaBurger敦化店', '#父親節推薦', '#忠孝敦化美食', '#資訊分享', '#避坑指南', '#美式漢堡'];
+      const userPrefix = cleanUserNotes ? `${cleanUserNotes}，` : '';
+      generatedEssay = `${userPrefix}終於踏進口袋名單已久的 Fa Burger 敦化店啦！🍔 這次點了招牌牛胸肉漢堡與帶骨牛小排，肉量給得相當豪邁，燻烤香氣與濃郁肉汁真的很扎實，麵包外脆內軟很加分。不過老實說，店內座位數量確實不多，尖峰用餐時段常需要排隊等候，建議想來吃的朋友避開正中午尖峰時段喔！⚠️ 🚇 捷運忠孝敦化站 8 號出口步行約 5 分鐘。`;
+      
+      recommendedTags = ['#FaBurger敦化店', '#忠孝敦化美食', '#資訊分享', '#避坑指南', '#美式漢堡', '#口袋名單'];
+      // 若使用者有特別輸入個人情境 (如慶生、聚餐等)，自動轉化為推薦標籤
+      if (/慶生|生日/.test(cleanUserNotes)) recommendedTags.splice(2, 0, '#慶生聚餐');
+      if (/聚餐|朋友/.test(cleanUserNotes)) recommendedTags.splice(2, 0, '#聚餐推薦');
+      if (/父親節/.test(cleanUserNotes)) recommendedTags.splice(2, 0, '#父親節推薦');
     } else {
       detectedLocation = '台北 • 美食街景角落';
-      generatedEssay = `${briefText}。現場環境維持得相當乾淨，餐點火候與調味非常扎實到位！不過店內空間不大且尖峰時段人潮較多，建議出發前避開正中午時段喔！⚠️ 🚇 鄰近捷運站步行約 6 分鐘即可抵達。🍜`;
+      const noteBody = cleanUserNotes || briefText;
+      generatedEssay = `${noteBody}。現場環境維持得相當乾淨，餐點火候與調味非常扎實到位！不過店內空間不大且尖峰時段人潮較多，建議出發前避開正中午時段喔！⚠️ 🚇 鄰近捷運站步行約 6 分鐘即可抵達。🍜`;
       recommendedTags = ['#資訊分享', '#景點推薦', '#在地探店', '#避坑指南', '#日常探索'];
     }
   } else if (topic === '專業知識分享') {
     // 實踐者同儕視角，沉穩客觀
     detectedLocation = '台北 • 研發工作站';
-    generatedEssay = `最近實作時深刻體會到：${briefText}。以前總以為要把工具鏈堆滿才算專業，後來實際部署上線才發現，掌握好原生基礎語意與架構邊界，往往能省下超過八成的維護成本。這套作法我自己用過覺得很順手，特別記錄分享給大家。💡`;
+    const noteBody = cleanUserNotes || briefText;
+    generatedEssay = `最近實作時深刻體會到：${noteBody}。以前總以為要把工具鏈堆滿才算專業，後來實際部署上線才發現，掌握好原生基礎語意與架構邊界，往往能省下超過八成的維護成本。這套作法我自己用過覺得很順手，特別記錄分享給大家。💡`;
     recommendedTags = ['#專業知識', '#實務心得', '#架構設計', '#CleanCode', '#技術分享'];
   } else {
     // 心得雜記：生活體悟、除錯、微幽默與自嘲元素
     detectedLocation = '台北 • 街角咖啡館';
-    generatedEssay = `${briefText}。花了一下午折騰，最後發現問題其實只是少了一點耐心與細心。果然在這種時候，最明智的解法不是繼續硬碰硬，而是先給自己沖一杯熱咖啡冷靜一下。看著窗外的行人慢慢走過，生活本來就是一連串的試錯，笑一笑也就過去了。☕✨`;
+    const noteBody = cleanUserNotes || briefText;
+    generatedEssay = `${noteBody}。花了一下午折騰，最後發現問題其實只是少了一點耐心與細心。果然在這種時候，最明智的解法不是繼續硬碰硬，而是先給自己沖一杯熱咖啡冷靜一下。看著窗外的行人慢慢走過，生活本來就是一連串的試錯，笑一笑也就過去了。☕✨`;
     recommendedTags = ['#心得雜記', '#生活日常', '#工程師自嘲', '#微幽默片刻', '#沉靜思考'];
   }
 
   // 1. 填入步驟 3 的確認修改文字框
   contentInput.value = generatedEssay;
+  if (charCount) {
+    charCount.textContent = `(${generatedEssay.length} 字)`;
+  }
 
   // 2. 更新地點標記
   if (locationInput) {
     locationInput.value = detectedLocation;
   }
 
-  // 3. 渲染步驟 5 的推薦 Hashtags 晶片
+  // 3. 渲染推薦 Hashtags 晶片
   renderRecommendedHashtags(recommendedTags);
 
-  // 4. 連動步驟 4 的 AI 動態視覺生圖
+  // 4. 連動 AI 動態視覺生圖
   generateAiVisualFromContent(topic, generatedEssay);
 
-  showToast('✨ 已依 Rules 規範生成小短文，請在步驟 3 確認或手動修改！');
+  // 5. 編輯區視覺柔和提示 (高亮顯示已成功生成短文)
+  contentInput.style.borderColor = '#3b82f6';
+  contentInput.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.2)';
+  setTimeout(() => {
+    contentInput.style.borderColor = '';
+    contentInput.style.boxShadow = '';
+  }, 1600);
 
-  // 平滑滾動至編輯區以方便確認
+  showToast('✨ 小短文已依 Rules 規範生成！請在下方確認或直接編輯。');
+
+  // 平滑滾動至編輯區以方便檢核
   const reviewGroup = document.getElementById('essayReviewGroup');
   if (reviewGroup) {
-    reviewGroup.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    reviewGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 }
 
@@ -862,6 +917,7 @@ function updateDefaultHashtagsForTopic(topic) {
   }
   renderRecommendedHashtags(tags);
 }
+
 
 /**
  * 動態渲染推薦 Hashtags 晶片列表（支援點選即時加入/取消）
